@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proxpi
+  namespace: tools
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: proxpi
+  template:
+    metadata:
+      labels:
+        app: proxpi
+    spec:
+      containers:
+      - name: proxpi
+        image: epicwink/proxpi:latest
+        ports:
+        - containerPort: 5000
+        env:
+        - name: PROXPI_CACHE_DIR
+          value: "/var/cache/proxpi"
+        volumeMounts:
+        - name: cache-volume
+          mountPath: /var/cache/proxpi
+      volumes:
+      - name: cache-volume
+        persistentVolumeClaim:
+          claimName: proxpi-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: proxpi-pvc
+  namespace: tools
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: proxpi
+  namespace: tools
+spec:
+  ports:
+  - port: 5000
+    targetPort: 5000
+  selector:
+    app: proxpi

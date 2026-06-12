@@ -1,0 +1,95 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: authentik
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "45"
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://charts.goauthentik.io'
+    chart: authentik
+    targetRevision: 2024.2.2
+    helm:
+      values: |
+        authentik:
+          # Use secrets mapped from VaultStaticSecret (which created a secret named 'authentik-vault-secrets')
+          postgresql:
+            host: postgres.database.svc.cluster.local
+            name: authentik
+            user: postgres
+            # Password pulled from Vault via env block below
+          redis:
+            host: redis.database.svc.cluster.local
+
+        envFrom:
+          - secretRef:
+              name: authentik-vault-secrets
+        
+        # Disable bundled postgres/redis since we provide our own
+        postgresql:
+          enabled: false
+        redis:
+          enabled: false
+          
+        server:
+          # Mount the blueprint
+          extraVolumes:
+            - name: blueprints
+              configMap:
+                name: authentik-blueprints
+          extraVolumeMounts:
+            - name: blueprints
+              mountPath: /media/blueprints
+
+        worker:
+          envFrom:
+            - secretRef:
+                name: authentik-vault-secrets
+          extraVolumes:
+            - name: blueprints
+              configMap:
+                name: authentik-blueprints
+          extraVolumeMounts:
+            - name: blueprints
+              mountPath: /media/blueprints
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: authentik
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    managedNamespaceMetadata:
+      labels:
+        istio-injection: enabled
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: authentik-blueprints
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "44" # Before Authentik
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: {{ .Values.repoURL }}
+    path: argo/manifests/authentik
+    targetRevision: {{ .Values.targetRevision }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: authentik
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true

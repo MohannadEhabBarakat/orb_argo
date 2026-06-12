@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bank-vaults
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://kubernetes-charts.banzaicloud.com'
+    chart: vault-operator
+    targetRevision: 1.21.0 # Or the latest stable version you prefer
+    helm:
+      values: |
+        # Helm values for Bank-Vaults operator if needed
+        # By default, it runs with sensible defaults in its own namespace
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: vault-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true

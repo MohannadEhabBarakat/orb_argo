@@ -1,0 +1,53 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "52"
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://prometheus-community.github.io/helm-charts'
+    chart: kube-prometheus-stack
+    targetRevision: 54.2.2
+    helm:
+      values: |
+        grafana:
+          enabled: false # We will deploy Grafana separately in Wave 4
+        prometheus:
+          prometheusSpec:
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: local-path
+                  accessModes: ["ReadWriteOnce"]
+                  resources:
+                    requests:
+                      storage: 10Gi
+            # Additional scrape configs for Istio and DCGM
+            additionalScrapeConfigs:
+              - job_name: 'envoy-stats'
+                metrics_path: /stats/prometheus
+                kubernetes_sd_configs:
+                - role: pod
+                relabel_configs:
+                - source_labels: [__meta_kubernetes_pod_container_port_name]
+                  action: keep
+                  regex: '.*-envoy-prom'
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    managedNamespaceMetadata:
+      labels:
+        istio-injection: enabled

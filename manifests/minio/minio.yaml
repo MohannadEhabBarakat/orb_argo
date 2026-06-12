@@ -1,0 +1,131 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  namespace: minio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      containers:
+      - name: minio
+        image: minio/minio:latest
+        args:
+        - server
+        - /data
+        - --console-address
+        - ":9001"
+        envFrom:
+        - secretRef:
+            name: minio-vault-secrets
+        env:
+        # OIDC Configuration for Authentik
+        - name: MINIO_IDENTITY_OPENID_CLIENT_ID
+          value: "minio"
+        - name: MINIO_IDENTITY_OPENID_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: minio-vault-secrets
+              key: MINIO_CLIENT_SECRET
+              optional: true
+        - name: MINIO_IDENTITY_OPENID_CONFIG_URL
+          value: "https://auth.localhost/application/o/minio/.well-known/openid-configuration"
+        - name: MINIO_IDENTITY_OPENID_SCOPES
+          value: "openid,profile,email"
+        - name: MINIO_IDENTITY_OPENID_REDIRECT_URI
+          value: "https://minio.localhost/oauth_callback"
+        # Redis Notification Configuration (Fix #13: all required env vars)
+        - name: MINIO_NOTIFY_REDIS_ENABLE_PRIMARY
+          value: "on"
+        - name: MINIO_NOTIFY_REDIS_ADDRESS_PRIMARY
+          value: "redis.database.svc.cluster.local:6379"
+        - name: MINIO_NOTIFY_REDIS_FORMAT_PRIMARY
+          value: "namespace"
+        - name: MINIO_NOTIFY_REDIS_KEY_PRIMARY
+          value: "minio-events"
+        ports:
+        - containerPort: 9000
+        - containerPort: 9001
+        volumeMounts:
+        - name: data
+          mountPath: /data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: minio-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio-pvc
+  namespace: minio
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  namespace: minio
+spec:
+  ports:
+  - name: api
+    port: 9000
+    targetPort: 9000
+  - name: console
+    port: 9001
+    targetPort: 9001
+  selector:
+    app: minio
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: minio-setup
+  namespace: minio
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 10
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: minio-setup
+        image: minio/mc:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -e
+          echo "Waiting for MinIO..."
+          until curl -sf http://minio.minio.svc.cluster.local:9000/minio/health/live; do
+            sleep 5
+          done
+          echo "MinIO is up. Setting alias..."
+          mc alias set myminio http://minio.minio.svc.cluster.local:9000 minioadmin "$MINIO_ROOT_PASSWORD"
+          echo "Creating buckets..."
+          mc mb --ignore-existing myminio/chunks
+          mc mb --ignore-existing myminio/ruler
+          mc mb --ignore-existing myminio/admin
+          mc mb --ignore-existing myminio/gitea
+          echo "Buckets created successfully."
+        env:
+        - name: MINIO_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: minio-vault-secrets
+              key: MINIO_ROOT_PASSWORD
+              optional: true

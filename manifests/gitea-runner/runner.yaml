@@ -1,0 +1,220 @@
+# Job to register a Gitea runner and store the token as a K8s secret
+# This runs once after Gitea is up to create a runner registration token
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gitea-runner-register
+  namespace: gitea
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: gitea-runner-register
+  namespace: gitea
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: gitea-runner-register
+  namespace: gitea
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: gitea-runner-register
+subjects:
+- kind: ServiceAccount
+  name: gitea-runner-register
+  namespace: gitea
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gitea-runner-register
+  namespace: gitea
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 10
+  template:
+    spec:
+      serviceAccountName: gitea-runner-register
+      restartPolicy: OnFailure
+      containers:
+      - name: register
+        image: curlimages/curl:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -e
+          echo "Waiting for Gitea to be ready..."
+          until curl -sf http://gitea-http.gitea.svc.cluster.local:3000/api/v1/version; do
+            echo "Gitea not ready, retrying in 10s..."
+            sleep 10
+          done
+          
+          echo "Gitea is ready. Getting admin token..."
+          # Use the admin credentials from Vault to create an API token
+          ADMIN_USER=$(cat /vault-secrets/GITEA_ADMIN_USERNAME 2>/dev/null || echo "gitea_admin")
+          ADMIN_PASS=$(cat /vault-secrets/GITEA_ADMIN_PASSWORD 2>/dev/null || echo "")
+          
+          # Create a runner registration token via the Gitea API
+          TOKEN=$(curl -sf -X POST \
+            -u "${ADMIN_USER}:${ADMIN_PASS}" \
+            "http://gitea-http.gitea.svc.cluster.local:3000/api/v1/user/actions/runners/registration-token" \
+            -H "Content-Type: application/json" | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+          
+          if [ -z "$TOKEN" ]; then
+            echo "Failed to get runner token"
+            exit 1
+          fi
+          
+          echo "Runner registration token obtained successfully"
+          echo "$TOKEN" > /tmp/runner-token
+        volumeMounts:
+        - name: vault-secrets
+          mountPath: /vault-secrets
+          readOnly: true
+        - name: token-volume
+          mountPath: /tmp
+      - name: create-secret
+        image: bitnami/kubectl:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          # Wait for the token file
+          until [ -f /tmp/runner-token ]; do sleep 2; done
+          TOKEN=$(cat /tmp/runner-token)
+          
+          # Create or update the K8s secret with the runner token
+          kubectl create secret generic gitea-runner-token \
+            --namespace gitea \
+            --from-literal=token="$TOKEN" \
+            --dry-run=client -o yaml | kubectl apply -f -
+          
+          echo "Runner token secret created successfully"
+        volumeMounts:
+        - name: token-volume
+          mountPath: /tmp
+      volumes:
+      - name: vault-secrets
+        secret:
+          secretName: gitea-vault-secrets
+          optional: true
+      - name: token-volume
+        emptyDir: {}
+---
+# The actual Gitea act runner deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitea-runner
+  namespace: gitea
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitea-runner
+  template:
+    metadata:
+      labels:
+        app: gitea-runner
+    spec:
+      containers:
+      - name: runner
+        image: gitea/act_runner:latest-dind-rootless
+        env:
+        - name: GITEA_INSTANCE_URL
+          value: "http://gitea-http.gitea.svc.cluster.local:3000"
+        - name: GITEA_RUNNER_REGISTRATION_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: gitea-runner-token
+              key: token
+        securityContext:
+          privileged: false
+          runAsUser: 1000
+          runAsGroup: 1000
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gitea-setup-oauth
+  namespace: gitea
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 10
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: setup-oauth
+        image: curlimages/curl:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          set -e
+          echo "Waiting for Gitea to be ready..."
+          until curl -sf http://gitea-http.gitea.svc.cluster.local:3000/api/v1/version; do
+            echo "Gitea not ready, retrying in 10s..."
+            sleep 10
+          done
+          
+          echo "Gitea is ready. Checking for existing Authentik auth source..."
+          ADMIN_USER=$(cat /vault-secrets/username 2>/dev/null || echo "gitea_admin")
+          ADMIN_PASS=$(cat /vault-secrets/password 2>/dev/null || echo "")
+          GITEA_CLIENT_SECRET=$(cat /vault-secrets/GITEA_CLIENT_SECRET 2>/dev/null || echo "")
+          
+          if [ -z "$GITEA_CLIENT_SECRET" ]; then
+            echo "GITEA_CLIENT_SECRET is missing. Cannot configure OIDC."
+            exit 1
+          fi
+
+          EXISTING=$(curl -sf -u "${ADMIN_USER}:${ADMIN_PASS}" "http://gitea-http.gitea.svc.cluster.local:3000/api/v1/admin/auths" || echo "[]")
+          if echo "$EXISTING" | grep -q "Authentik"; then
+            echo "Authentik OIDC provider already configured."
+            exit 0
+          fi
+
+          echo "Adding Authentik OIDC provider..."
+          curl -sf -X POST \
+            -u "${ADMIN_USER}:${ADMIN_PASS}" \
+            "http://gitea-http.gitea.svc.cluster.local:3000/api/v1/admin/auths" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "active": true,
+              "name": "Authentik",
+              "oauth2_provider": "openidConnect",
+              "oauth2_key": "gitea",
+              "oauth2_secret": "'"$GITEA_CLIENT_SECRET"'",
+              "oauth2_auto_discover_url": "https://auth.localhost/application/o/gitea/.well-known/openid-configuration",
+              "type": 6
+            }'
+            
+          echo "Authentik OIDC provider successfully added."
+        volumeMounts:
+        - name: vault-secrets
+          mountPath: /vault-secrets
+          readOnly: true
+      volumes:
+      - name: vault-secrets
+        secret:
+          secretName: gitea-vault-secrets
+          optional: true

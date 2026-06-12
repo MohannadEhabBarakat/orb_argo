@@ -1,0 +1,236 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: vault-unseal
+  namespace: vault-system
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: vault-unseal
+  namespace: vault-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: vault-unseal
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: vault-system
+---
+apiVersion: vault.banzaicloud.com/v1alpha1
+kind: Vault
+metadata:
+  name: vault
+  namespace: vault-system
+spec:
+  size: 1
+  image: hashicorp/vault:1.15.1
+  bankVaultsImage: ghcr.io/bank-vaults/bank-vaults:latest
+
+  # Schedule on any node
+  serviceAccount: vault
+
+  # Use local file storage on PVC
+  volumeClaimTemplates:
+    - metadata:
+        name: vault-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: local-path
+        resources:
+          requests:
+            storage: 2Gi
+
+  # Unseal configuration using Kubernetes Secrets (solo-dev safe)
+  unsealConfig:
+    kubernetes:
+      secretNamespace: vault-system
+
+  config:
+    storage:
+      file:
+        path: "/vault/file"
+    listener:
+      tcp:
+        address: "0.0.0.0:8200"
+        tls_disable: true
+    ui: true
+
+  # Bank-Vaults externalConfig: auto-configure Vault on startup
+  externalConfig:
+    # Enable KV v2 secrets engine
+    secrets:
+      - type: kv
+        path: secret
+        description: "KV v2 secrets engine for application secrets"
+        options:
+          version: 2
+        configuration:
+          config:
+            - max_versions: 10
+
+    # Enable PKI secrets engine for Vault CA (used by Istio)
+    # This creates a root CA that Istio can use
+      - type: pki
+        path: pki
+        description: "PKI secrets engine for internal CA"
+        configuration:
+          config:
+            - max_lease_ttl: "87600h"
+        root/generate/internal:
+          - common_name: "Orb Internal CA"
+            ttl: "87600h"
+        roles:
+          - name: istio-ca
+            allowed_domains: "istio-system.svc.cluster.local,svc.cluster.local,cluster.local"
+            allow_subdomains: true
+            allowed_uri_sans: "spiffe://*"
+            max_ttl: "72h"
+
+    # Enable Kubernetes auth method
+    auth:
+      - type: kubernetes
+        path: kubernetes
+        roles:
+          - name: cert-manager
+            bound_service_account_names: ["vault-issuer"]
+            bound_service_account_namespaces: ["cert-manager"]
+            policies: ["cert-manager"]
+            ttl: 1h
+          - name: authentik
+            bound_service_account_names: ["authentik", "authentik-server", "authentik-worker", "default"]
+            bound_service_account_namespaces: ["authentik"]
+            policies: ["authentik"]
+            ttl: 1h
+          - name: grafana
+            bound_service_account_names: ["grafana", "default"]
+            bound_service_account_namespaces: ["monitoring"]
+            policies: ["grafana"]
+            ttl: 1h
+          - name: gitea
+            bound_service_account_names: ["gitea", "default"]
+            bound_service_account_namespaces: ["gitea"]
+            policies: ["gitea"]
+            ttl: 1h
+          - name: openfga
+            bound_service_account_names: ["openfga", "default"]
+            bound_service_account_namespaces: ["openfga"]
+            policies: ["openfga"]
+            ttl: 1h
+          - name: minio
+            bound_service_account_names: ["minio", "default"]
+            bound_service_account_namespaces: ["minio"]
+            policies: ["minio"]
+            ttl: 1h
+          - name: vso
+            bound_service_account_names: ["vault-secrets-operator-controller-manager", "default"]
+            bound_service_account_namespaces: ["vault-system"]
+            policies: ["vso"]
+            ttl: 1h
+
+    # Vault policies
+    policies:
+      - name: cert-manager
+        rules: |
+          path "pki/sign/istio-ca" {
+            capabilities = ["create", "update"]
+          }
+      - name: authentik
+        rules: |
+          path "secret/data/authentik/*" {
+            capabilities = ["read", "list"]
+          }
+          path "secret/data/postgres/*" {
+            capabilities = ["read"]
+          }
+      - name: grafana
+        rules: |
+          path "secret/data/grafana/*" {
+            capabilities = ["read", "list"]
+          }
+          path "secret/data/postgres/*" {
+            capabilities = ["read"]
+          }
+      - name: gitea
+        rules: |
+          path "secret/data/gitea/*" {
+            capabilities = ["read", "list"]
+          }
+          path "secret/data/postgres/*" {
+            capabilities = ["read"]
+          }
+          path "secret/data/minio/*" {
+            capabilities = ["read"]
+          }
+      - name: openfga
+        rules: |
+          path "secret/data/openfga/*" {
+            capabilities = ["read", "list"]
+          }
+          path "secret/data/postgres/*" {
+            capabilities = ["read"]
+          }
+      - name: minio
+        rules: |
+          path "secret/data/minio/*" {
+            capabilities = ["read", "list"]
+          }
+      - name: vso
+        rules: |
+          path "secret/data/*" {
+            capabilities = ["read", "list"]
+          }
+
+    # Seed initial secrets into Vault KV v2
+    startupSecrets:
+      - type: kv
+        path: secret/data/postgres/config
+        data:
+          data:
+            POSTGRES_PASSWORD: "vault-managed-pg-pass-secure"
+      - type: kv
+        path: secret/data/authentik/config
+        data:
+          data:
+            AUTHENTIK_SECRET_KEY: "vault-managed-ak-secret-secure"
+            AUTHENTIK_POSTGRESQL__PASSWORD: "vault-managed-pg-pass-secure"
+            MINIO_CLIENT_SECRET: "vault-managed-minio-oidc-secure"
+            GRAFANA_CLIENT_SECRET: "vault-managed-grafana-oidc-secure"
+            GITEA_CLIENT_SECRET: "vault-managed-gitea-oidc-secure"
+            OPENFGA_CLIENT_SECRET: "vault-managed-openfga-oidc-secure"
+      - type: kv
+        path: secret/data/minio/config
+        data:
+          data:
+            MINIO_ROOT_USER: "minioadmin"
+            MINIO_ROOT_PASSWORD: "vault-managed-minio-pass-secure"
+            MINIO_CLIENT_SECRET: "vault-managed-minio-oidc-secure"
+      - type: kv
+        path: secret/data/grafana/config
+        data:
+          data:
+            GF_DATABASE_PASSWORD: "vault-managed-pg-pass-secure"
+            GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: "vault-managed-grafana-oidc-secure"
+      - type: kv
+        path: secret/data/gitea/config
+        data:
+          data:
+            GITEA_DATABASE_PASSWD: "vault-managed-pg-pass-secure"
+            GITEA_MINIO_ACCESS_KEY: "minioadmin"
+            GITEA_MINIO_SECRET_KEY: "vault-managed-minio-pass-secure"
+            GITEA_ADMIN_USERNAME: "gitea_admin"
+            GITEA_ADMIN_PASSWORD: "vault-managed-gitea-admin-pass-secure"
+            GITEA_CLIENT_SECRET: "vault-managed-gitea-oidc-secure"
+            username: "gitea_admin"
+            password: "vault-managed-gitea-admin-pass-secure"
+      - type: kv
+        path: secret/data/openfga/config
+        data:
+          data:
+            OPENFGA_DATASTORE_URI: "postgres://postgres:vault-managed-pg-pass-secure@postgres.database.svc.cluster.local:5432/openfga?sslmode=disable"

@@ -1,0 +1,4 @@
+apiVersion: v2
+name: cluster-waves
+version: 0.1.0
+description: App of Apps Helm chart

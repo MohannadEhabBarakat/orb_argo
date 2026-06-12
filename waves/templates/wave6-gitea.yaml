@@ -1,0 +1,83 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitea
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "64"
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://dl.gitea.com/charts/'
+    chart: gitea
+    targetRevision: 10.1.4
+    helm:
+      values: |
+        gitea:
+          admin:
+            existingSecret: gitea-vault-secrets
+          config:
+            actions:
+              ENABLED: true
+            database:
+              DB_TYPE: postgres
+              HOST: postgres.database.svc.cluster.local:5432
+              NAME: gitea
+              USER: postgres
+            storage:
+              STORAGE_TYPE: minio
+              MINIO_ENDPOINT: minio.minio.svc.cluster.local:9000
+              MINIO_BUCKET: gitea
+              MINIO_USE_SSL: false
+            openid:
+              ENABLE_OPENID_SIGNIN: true
+            oauth2_client:
+              OPENID_CONNECT_SCOPES: "openid profile email"
+              ENABLE_AUTO_REGISTRATION: true
+              ACCOUNT_LINKING: auto
+        
+        # Inject Vault secrets as environment variables
+        extraEnvFrom:
+          - secretRef:
+              name: gitea-vault-secrets
+              
+        extraEnv:
+          - name: GITEA__storage__MINIO_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: gitea-vault-secrets
+                key: GITEA_MINIO_ACCESS_KEY
+          - name: GITEA__storage__MINIO_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: gitea-vault-secrets
+                key: GITEA_MINIO_SECRET_KEY
+          - name: GITEA__database__PASSWD
+            valueFrom:
+              secretKeyRef:
+                name: gitea-vault-secrets
+                key: GITEA_DATABASE_PASSWD
+        
+        postgresql:
+          enabled: false
+        redis:
+          enabled: false
+        
+        persistence:
+          enabled: true
+          storageClass: local-path
+          size: 10Gi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gitea
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    managedNamespaceMetadata:
+      labels:
+        istio-injection: enabled

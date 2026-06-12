@@ -1,0 +1,54 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: loki
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "62"
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://grafana.github.io/helm-charts'
+    chart: loki
+    targetRevision: 5.41.4
+    helm:
+      values: |
+        deploymentMode: SingleBinary
+        loki:
+          commonConfig:
+            replication_factor: 1
+          extraArgs:
+            - "-config.expand-env=true"
+          extraEnv:
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: loki-vault-secrets
+                  key: MINIO_ROOT_PASSWORD
+          storage:
+            type: s3
+            bucketNames:
+              chunks: chunks
+              ruler: ruler
+              admin: admin
+            s3:
+              endpoint: minio.minio.svc.cluster.local:9000
+              accessKeyId: minioadmin
+              secretAccessKey: ${MINIO_ROOT_PASSWORD}
+              s3ForcePathStyle: true
+              insecure: true
+          auth_enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    managedNamespaceMetadata:
+      labels:
+        istio-injection: enabled

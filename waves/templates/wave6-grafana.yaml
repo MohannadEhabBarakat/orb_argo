@@ -1,0 +1,115 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "61"
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://grafana.github.io/helm-charts'
+    chart: grafana
+    targetRevision: 7.0.0
+    helm:
+      values: |
+        # Database: Postgres via Vault secrets
+        grafana.ini:
+          database:
+            type: postgres
+            host: postgres.database.svc.cluster.local:5432
+            name: grafana
+            user: postgres
+            # Password injected via envValueFrom below
+          auth.generic_oauth:
+            enabled: true
+            name: Authentik
+            allow_sign_up: true
+            client_id: grafana
+            scopes: openid profile email
+            auth_url: https://auth.localhost/application/o/authorize/
+            token_url: http://authentik.authentik.svc.cluster.local/application/o/token/
+            api_url: http://authentik.authentik.svc.cluster.local/application/o/userinfo/
+            role_attribute_path: contains(groups[*], 'authentik-admins') && 'Admin' || 'Viewer'
+        
+        envValueFrom:
+          GF_DATABASE_PASSWORD:
+            secretKeyRef:
+              name: grafana-vault-secrets
+              key: GF_DATABASE_PASSWORD
+          GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET:
+            secretKeyRef:
+              name: grafana-vault-secrets
+              key: GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET
+
+        # Data sources
+        datasources:
+          datasources.yaml:
+            apiVersion: 1
+            datasources:
+            - name: Prometheus
+              type: prometheus
+              url: http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+              access: proxy
+              isDefault: true
+            - name: Loki
+              type: loki
+              url: http://loki.monitoring.svc.cluster.local:3100
+              access: proxy
+
+        # Dashboard provisioning — GPU dashboard from Grafana.com
+        dashboardProviders:
+          dashboardproviders.yaml:
+            apiVersion: 1
+            providers:
+            - name: 'gpu'
+              orgId: 1
+              folder: 'GPU Monitoring'
+              type: file
+              disableDeletion: false
+              editable: true
+              options:
+                path: /var/lib/grafana/dashboards/gpu
+            - name: 'kubernetes'
+              orgId: 1
+              folder: 'Kubernetes'
+              type: file
+              disableDeletion: false
+              editable: true
+              options:
+                path: /var/lib/grafana/dashboards/kubernetes
+
+        dashboards:
+          gpu:
+            nvidia-dcgm:
+              gnetId: 12239
+              revision: 2
+              datasource: Prometheus
+          kubernetes:
+            cluster-overview:
+              gnetId: 7249
+              revision: 1
+              datasource: Prometheus
+            istio-mesh:
+              gnetId: 7639
+              revision: 1
+              datasource: Prometheus
+        
+        persistence:
+          enabled: true
+          storageClassName: local-path
+          size: 5Gi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    managedNamespaceMetadata:
+      labels:
+        istio-injection: enabled
