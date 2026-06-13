@@ -11,7 +11,7 @@ spec:
   project: default
   source:
     repoURL: {{ .Values.repoURL }}
-    path: argo/manifests/openfga
+    path: manifests/openfga
     targetRevision: {{ .Values.targetRevision }}
   destination:
     server: https://kubernetes.default.svc

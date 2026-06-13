@@ -10,9 +10,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://kubernetes-charts.banzaicloud.com'
+    repoURL: 'ghcr.io/bank-vaults/helm-charts'
     chart: vault-operator
-    targetRevision: 1.21.0 # Or the latest stable version you prefer
+    targetRevision: 1.21.0 # The migration to ghcr.io preserves versions
     helm:
       values: |
         # Helm values for Bank-Vaults operator if needed

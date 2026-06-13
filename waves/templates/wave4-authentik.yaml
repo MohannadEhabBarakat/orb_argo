@@ -25,9 +25,15 @@ spec:
           redis:
             host: redis.database.svc.cluster.local
 
-        envFrom:
-          - secretRef:
+        envValueFrom:
+          AUTHENTIK_SECRET_KEY:
+            secretKeyRef:
               name: authentik-vault-secrets
+              key: AUTHENTIK_SECRET_KEY
+          AUTHENTIK_POSTGRESQL__PASSWORD:
+            secretKeyRef:
+              name: authentik-vault-secrets
+              key: AUTHENTIK_POSTGRESQL__PASSWORD
         
         # Disable bundled postgres/redis since we provide our own
         postgresql:
@@ -46,9 +52,15 @@ spec:
               mountPath: /media/blueprints
 
         worker:
-          envFrom:
-            - secretRef:
+          envValueFrom:
+            AUTHENTIK_SECRET_KEY:
+              secretKeyRef:
                 name: authentik-vault-secrets
+                key: AUTHENTIK_SECRET_KEY
+            AUTHENTIK_POSTGRESQL__PASSWORD:
+              secretKeyRef:
+                name: authentik-vault-secrets
+                key: AUTHENTIK_POSTGRESQL__PASSWORD
           extraVolumes:
             - name: blueprints
               configMap:
@@ -82,7 +94,7 @@ spec:
   project: default
   source:
     repoURL: {{ .Values.repoURL }}
-    path: argo/manifests/authentik
+    path: manifests/authentik
     targetRevision: {{ .Values.targetRevision }}
   destination:
     server: https://kubernetes.default.svc

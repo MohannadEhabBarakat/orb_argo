@@ -11,7 +11,7 @@ spec:
   project: default
   source:
     repoURL: {{ .Values.repoURL }}
-    path: argo/manifests/istio
+    path: manifests/istio
     targetRevision: {{ .Values.targetRevision }}
   destination:
     server: https://kubernetes.default.svc

@@ -11,7 +11,7 @@ spec:
   project: default
   source:
     repoURL: {{ .Values.repoURL }}
-    path: argo/manifests/postgres
+    path: manifests/postgres
     targetRevision: {{ .Values.targetRevision }}
   destination:
     server: https://kubernetes.default.svc
