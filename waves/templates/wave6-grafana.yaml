@@ -15,6 +15,9 @@ spec:
     targetRevision: 7.0.0
     helm:
       values: |
+        podAnnotations:
+          sidecar.istio.io/inject: "true"
+
         # Database: Postgres via Vault secrets
         grafana.ini:
           database:
@@ -111,5 +114,4 @@ spec:
     syncOptions:
     - CreateNamespace=true
     managedNamespaceMetadata:
-      labels:
-        istio-injection: enabled
+      labels: {}

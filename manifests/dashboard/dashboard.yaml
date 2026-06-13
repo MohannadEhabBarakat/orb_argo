@@ -12,6 +12,8 @@ spec:
     metadata:
       labels:
         app: dashboard
+      annotations:
+        sidecar.istio.io/inject: "true"
     spec:
       containers:
       - name: nginx

@@ -52,4 +52,3 @@ spec:
     - ServerSideApply=true
     managedNamespaceMetadata:
       labels:
-        istio-injection: enabled
