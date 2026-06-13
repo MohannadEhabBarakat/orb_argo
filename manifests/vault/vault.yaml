@@ -89,15 +89,14 @@ spec:
         configuration:
           config:
             - max_lease_ttl: "87600h"
-        # The configuration block needs to map endpoint paths as keys
-        root/generate/internal:
-          - common_name: "Orb Internal CA"
-            ttl: "87600h"
-        roles/istio-ca:
-          - allowed_domains: "istio-system.svc.cluster.local,svc.cluster.local,cluster.local"
-            allow_subdomains: true
-            allowed_uri_sans: "spiffe://*"
-            max_ttl: "72h"
+          root/generate/internal:
+            - common_name: "Orb Internal CA"
+              ttl: "87600h"
+          roles/istio-ca:
+            - allowed_domains: "istio-system.svc.cluster.local,svc.cluster.local,cluster.local"
+              allow_subdomains: true
+              allowed_uri_sans: "spiffe://*"
+              max_ttl: "72h"
 
     # Enable Kubernetes auth method
     auth:
