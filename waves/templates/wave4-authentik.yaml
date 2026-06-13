@@ -16,25 +16,28 @@ spec:
     helm:
       values: |
         authentik:
-          # Use secrets mapped from VaultStaticSecret (which created a secret named 'authentik-vault-secrets')
+          secret_key: ""
           postgresql:
             host: postgres.database.svc.cluster.local
             name: authentik
             user: postgres
-            # Password pulled from Vault via env block below
+            password: ""
           redis:
             host: redis.database.svc.cluster.local
 
-        envValueFrom:
-          AUTHENTIK_SECRET_KEY:
-            secretKeyRef:
-              name: authentik-vault-secrets
-              key: AUTHENTIK_SECRET_KEY
-          AUTHENTIK_POSTGRESQL__PASSWORD:
-            secretKeyRef:
-              name: authentik-vault-secrets
-              key: AUTHENTIK_POSTGRESQL__PASSWORD
-        
+        global:
+          env:
+            - name: AUTHENTIK_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-vault-secrets
+                  key: AUTHENTIK_SECRET_KEY
+            - name: AUTHENTIK_POSTGRESQL__PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-vault-secrets
+                  key: AUTHENTIK_POSTGRESQL__PASSWORD
+
         # Disable bundled postgres/redis since we provide our own
         postgresql:
           enabled: false
@@ -52,15 +55,6 @@ spec:
               mountPath: /media/blueprints
 
         worker:
-          envValueFrom:
-            AUTHENTIK_SECRET_KEY:
-              secretKeyRef:
-                name: authentik-vault-secrets
-                key: AUTHENTIK_SECRET_KEY
-            AUTHENTIK_POSTGRESQL__PASSWORD:
-              secretKeyRef:
-                name: authentik-vault-secrets
-                key: AUTHENTIK_POSTGRESQL__PASSWORD
           extraVolumes:
             - name: blueprints
               configMap:
