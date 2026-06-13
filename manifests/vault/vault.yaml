@@ -25,7 +25,7 @@ roleRef:
   name: vault-unseal
 subjects:
   - kind: ServiceAccount
-    name: default
+    name: vault
     namespace: vault-system
 ---
 apiVersion: vault.banzaicloud.com/v1alpha1
