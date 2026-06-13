@@ -79,7 +79,7 @@ spec:
           version: 2
         configuration:
           config:
-            - max_versions: 10
+            max_versions: 10
 
     # Enable PKI secrets engine for Vault CA (used by Istio)
     # This creates a root CA that Istio can use
@@ -87,16 +87,14 @@ spec:
         path: pki
         description: "PKI secrets engine for internal CA"
         configuration:
-          config:
-            - max_lease_ttl: "87600h"
           root/generate/internal:
-            - common_name: "Orb Internal CA"
-              ttl: "87600h"
+            common_name: "Orb Internal CA"
+            ttl: "87600h"
           roles/istio-ca:
-            - allowed_domains: "istio-system.svc.cluster.local,svc.cluster.local,cluster.local"
-              allow_subdomains: true
-              allowed_uri_sans: "spiffe://*"
-              max_ttl: "72h"
+            allowed_domains: "istio-system.svc.cluster.local,svc.cluster.local,cluster.local"
+            allow_subdomains: true
+            allowed_uri_sans: "spiffe://*"
+            max_ttl: "72h"
 
     # Enable Kubernetes auth method
     auth:
