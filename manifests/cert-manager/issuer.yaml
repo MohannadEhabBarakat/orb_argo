@@ -4,6 +4,15 @@ metadata:
   name: vault-issuer
   namespace: cert-manager
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vault-issuer-token
+  namespace: cert-manager
+  annotations:
+    kubernetes.io/service-account.name: vault-issuer
+type: kubernetes.io/service-account-token
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -41,5 +50,6 @@ spec:
       kubernetes:
         mountPath: /v1/auth/kubernetes
         role: cert-manager
-        serviceAccountRef:
-          name: vault-issuer
+        secretRef:
+          name: vault-issuer-token
+          key: token
