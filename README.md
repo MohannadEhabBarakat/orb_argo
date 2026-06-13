@@ -79,3 +79,12 @@ This root application will automatically sync and deploy the following waves in 
 ## Domain Configuration
 
 We use `*.localhost` for local routing to our services via Istio. You do not need to modify your host machine's `/etc/hosts` file since `localhost` resolves locally.
+
+
+
+## Nuke the cluster
+
+```bash
+/usr/local/bin/k3s-uninstall.sh
+```
+
