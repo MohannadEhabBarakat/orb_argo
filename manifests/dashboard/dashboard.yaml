@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard
+  namespace: tools
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dashboard
+  template:
+    metadata:
+      labels:
+        app: dashboard
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: html-volume
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: html-volume
+        configMap:
+          name: dashboard-html
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard
+  namespace: tools
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: dashboard
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: dashboard
+  namespace: tools
+spec:
+  hosts:
+  - "dashboard.localhost"
+  gateways:
+  - istio-ingress/orb-gateway
+  http:
+  - route:
+    - destination:
+        host: dashboard.tools.svc.cluster.local
+        port:
+          number: 80

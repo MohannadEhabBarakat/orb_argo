@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/MohannadEhabBarakat/orb_argo.git' # TODO: Replace with your actual Git repo URL
-    path: argo/waves
+    path: waves
     targetRevision: HEAD
     helm:
       valueFiles:

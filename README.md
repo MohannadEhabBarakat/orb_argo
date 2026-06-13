@@ -2,26 +2,28 @@
 
 This repository contains the configuration to set up a local development Kubernetes cluster, heavily relying on the ArgoCD App of Apps pattern. 
 
-The environment is built using Minikube on Windows (WSL) and handles complex dependencies through sync waves.
+The environment is built using k3s and handles complex dependencies through sync waves.
 
 ## Prerequisites
 
-- [Minikube](https://minikube.sigs.k8s.io/docs/start/) installed on Windows.
-- WSL (Windows Subsystem for Linux) setup.
+- Linux environment (or Windows Subsystem for Linux - WSL).
 - `kubectl` configured.
 
 ## Cluster Setup
 
-If you haven't started Minikube yet, initialize your environment. From your WSL terminal:
+We provide a script to automate the installation of k3s. From your terminal, run:
 
 ```bash
-# Note: minikubes is an alias set up to point to your minikube.exe
-minikubes start --driver=docker  --addons=ingress,default-storageclass,storage-provisioner --gpus=all --nodes=3 --listen-address=0.0.0.0
+chmod +x install-k3.sh
+./install-k3.sh
 ```
 
-To SSH into the minikube node (if needed for debugging):
+*(If you prefer to install manually)*:
 ```bash
-minikubes ssh
+curl -sfL https://get.k3s.io | sh -
+mkdir -p ~/.kube
+sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+sudo chown $(id -u):$(id -g) ~/.kube/config
 ```
 
 ## Step 1: Install ArgoCD
@@ -37,7 +39,23 @@ We have provided a script to install and configure ArgoCD:
 *(If you prefer to install manually)*:
 ```bash
 kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl apply --server-side --force-conflicts -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+```
+
+### Accessing the ArgoCD UI
+
+Once ArgoCD is installed, you can access its UI by port-forwarding the server to your local machine:
+
+```bash
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+```
+
+Open `https://localhost:8080` in your browser.
+- **Username:** `admin`
+- **Password:** Run the following command to retrieve your initial admin password:
+
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
 ```
 
 ## Step 2: Apply the App of Apps
@@ -56,6 +74,7 @@ This root application will automatically sync and deploy the following waves in 
 - **WAVE 2:** Network & Core Identity (Istio, Authentik)
 - **WAVE 3:** Downstream Platforms (MinIO, OpenFGA, Prometheus)
 - **WAVE 4:** Visualization, Tools & Code (Grafana, Loki, DCGM, Proxpi, Gitea)
+- **WAVE 5:** Dashboard
 
 ## Domain Configuration
 
