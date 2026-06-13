@@ -103,8 +103,9 @@ spec:
               ttl: "87600h"
           roles:
             - name: istio-ca
-              allowed_domains: "istio-system.svc.cluster.local,svc.cluster.local,cluster.local"
+              allowed_domains: "istio-system.svc.cluster.local,svc.cluster.local,cluster.local,istio-system.svc"
               allow_subdomains: true
+              allow_any_name: true
               allowed_uri_sans: "spiffe://*"
               max_ttl: "72h"
 
