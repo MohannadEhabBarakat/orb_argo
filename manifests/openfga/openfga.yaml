@@ -16,7 +16,7 @@ spec:
       initContainers:
       - name: openfga-migrate
         image: openfga/openfga:latest
-        command: ["openfga", "migrate"]
+        command: ["/openfga", "migrate"]
         env:
         - name: OPENFGA_DATASTORE_ENGINE
           value: "postgres"
@@ -28,7 +28,7 @@ spec:
       containers:
       - name: openfga
         image: openfga/openfga:latest
-        command: ["openfga", "run"]
+        command: ["/openfga", "run"]
         env:
         - name: OPENFGA_DATASTORE_ENGINE
           value: "postgres"
