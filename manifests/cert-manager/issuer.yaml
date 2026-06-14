@@ -98,8 +98,14 @@ spec:
             readOnlyRootFilesystem: true
             capabilities:
               drop: ["ALL"]
+          env:
+            - name: HOME
+              value: /tmp
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
           command:
-            - /bin/bash
+            - /bin/sh
             - -c
             - |
               set -e
@@ -121,4 +127,7 @@ spec:
               kubectl patch clusterissuer vault-issuer --type='json' -p="[{\"op\": \"add\", \"path\": \"/spec/vault/caBundle\", \"value\": \"$CA\"}]"
               echo "Creating vault-ca ConfigMap for trust-manager..."
               kubectl create configmap vault-ca --from-literal=ca.crt="$(echo $CA | base64 -d)" -n cert-manager --dry-run=client -o yaml | kubectl apply -f -
+      volumes:
+        - name: tmp
+          emptyDir: {}
       restartPolicy: OnFailure

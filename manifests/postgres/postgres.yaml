@@ -69,6 +69,16 @@ spec:
             secretKeyRef:
               name: postgres-vault-secrets
               key: POSTGRES_PASSWORD
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-vault-secrets
+              key: POSTGRES_USER
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres-vault-secrets
+              key: POSTGRES_DB
         ports:
         - containerPort: 5432
         volumeMounts:

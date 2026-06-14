@@ -11,6 +11,8 @@ spec:
         path: secret/data/postgres/config
         data:
           data:
+            POSTGRES_USER: "postgres"
+            POSTGRES_DB: "postgres"
             POSTGRES_PASSWORD: "CHANGE_ME_pg_pass"
       - type: kv
         path: secret/data/authentik/config

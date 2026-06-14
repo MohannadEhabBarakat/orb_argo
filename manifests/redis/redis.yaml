@@ -41,12 +41,17 @@ spec:
             secretKeyRef:
               name: redis-vault-secrets
               key: REDIS_PASSWORD
-        command: ["sh", "-c", "redis-server --appendonly yes --requirepass $REDIS_PASSWORD"]
+        command: ["sh", "-c", "echo \"requirepass $REDIS_PASSWORD\" > /tmp/redis.conf && redis-server /tmp/redis.conf --appendonly yes"]
         ports:
         - containerPort: 6379
         volumeMounts:
+        - name: tmp
+          mountPath: /tmp
         - name: redis-data
           mountPath: /data
+      volumes:
+      - name: tmp
+        emptyDir: {}
   volumeClaimTemplates:
   - metadata:
       name: redis-data
