@@ -86,7 +86,7 @@ spec:
       serviceAccountName: vault-issuer-patcher
       containers:
         - name: patcher
-          image: bitnami/kubectl:1.29.2
+          image: alpine/k8s:1.29.2
           command:
             - /bin/bash
             - -c
