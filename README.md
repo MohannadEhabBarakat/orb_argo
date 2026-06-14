@@ -57,21 +57,6 @@ Open `https://localhost:8080` in your browser.
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
 ```
 
-### Vault Startup Secrets
-
-Before applying the App of Apps, you must configure the initial secrets for Vault. We keep these secrets out of version control.
-Copy the example file and fill in your own secure passwords:
-
-```bash
-cp manifests/vault/example_vault_sec.yaml manifests/vault/vault_sec.yaml
-```
-
-Edit `manifests/vault/vault_sec.yaml` to replace all `CHANGE_ME` values with secure passwords. Do not commit this file to Git. Once you have populated it, apply it to the cluster:
-
-```bash
-kubectl apply -f manifests/vault/vault_sec.yaml
-```
-
 ## Step 2: Apply the App of Apps
 
 Once ArgoCD is running, you can bootstrap the entire environment by applying the root application:
@@ -79,6 +64,30 @@ Once ArgoCD is running, you can bootstrap the entire environment by applying the
 ```bash
 kubectl apply -f ./argo-apps.yaml
 ```
+*(Keep in mind that the automated deployment will pause at wave 1 until you configure the Vault secrets in the next step).*
+
+## Step 3: Configure Vault Startup Secrets
+
+We keep the core database and component passwords out of version control. Vault requires these secrets to properly initialize the environment.
+
+1. Copy the example file and fill in your own secure passwords:
+```bash
+cp manifests/vault/example_vault_sec.yaml manifests/vault/vault_sec.yaml
+```
+
+2. Edit `manifests/vault/vault_sec.yaml` to replace all `CHANGE_ME` values with secure passwords. Do NOT commit this file to Git.
+
+3. Wait for the Vault Custom Resource to be deployed by ArgoCD (this usually takes about a minute after applying the App of Apps):
+```bash
+until kubectl get vault vault -n vault-system >/dev/null 2>&1; do sleep 5; done
+```
+
+4. Patch the running Vault instance with your secure passwords. (We use patch instead of apply to securely inject them into the ArgoCD-managed resource):
+```bash
+kubectl patch vault vault -n vault-system --type=merge --patch-file manifests/vault/vault_sec.yaml
+```
+
+Once the patch is applied, Vault will automatically seed the secrets, and ArgoCD will proceed to successfully deploy the rest of the cluster waves (Databases, Authentik, Monitoring, etc.).
 
 This root application will automatically sync and deploy the following waves in order:
 
