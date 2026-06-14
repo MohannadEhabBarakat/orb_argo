@@ -53,3 +53,69 @@ spec:
         secretRef:
           name: vault-issuer-token
           key: token
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault-issuer-patcher
+  namespace: cert-manager
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: vault-issuer-patcher-role
+rules:
+  - apiGroups: ["cert-manager.io"]
+    resources: ["clusterissuers"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: vault-issuer-patcher-binding
+subjects:
+  - kind: ServiceAccount
+    name: vault-issuer-patcher
+    namespace: cert-manager
+roleRef:
+  kind: ClusterRole
+  name: vault-issuer-patcher-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: patch-vault-issuer-ca
+  namespace: cert-manager
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      serviceAccountName: vault-issuer-patcher
+      containers:
+        - name: patcher
+          image: bitnami/kubectl:latest
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              echo "Waiting for Vault to be ready..."
+              until kubectl get pod -n vault-system vault-0 | grep "1/1" | grep "Running"; do
+                sleep 5
+              done
+              echo "Fetching CA from Vault..."
+              # Wait until Vault API responds
+              until curl -s http://vault.vault-system.svc.cluster.local:8200/v1/pki/ca/pem > /dev/null; do
+                sleep 5
+              done
+              CA=$(curl -s http://vault.vault-system.svc.cluster.local:8200/v1/pki/ca/pem | base64 | tr -d '\n')
+              if [ -z "$CA" ]; then
+                echo "Failed to fetch CA"
+                exit 1
+              fi
+              echo "Patching vault-issuer ClusterIssuer with CA Bundle..."
+              kubectl patch clusterissuer vault-issuer --type='json' -p="[{\"op\": \"add\", \"path\": \"/spec/vault/caBundle\", \"value\": \"$CA\"}]"
+      restartPolicy: OnFailure
