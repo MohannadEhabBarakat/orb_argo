@@ -15,15 +15,30 @@ spec:
     targetRevision: 5.41.4
     helm:
       values: |
-        deploymentMode: SingleBinary
         backend:
-          replicas: 0
-        read:
-          replicas: 0
-        write:
-          replicas: 0
-        singleBinary:
           replicas: 1
+          persistence:
+            storageClass: local-path
+          affinity: {}
+        read:
+          replicas: 1
+          affinity: {}
+        write:
+          replicas: 1
+          persistence:
+            storageClass: local-path
+          affinity: {}
+        singleBinary:
+          replicas: 0
+        monitoring:
+          selfMonitoring:
+            enabled: false
+            grafanaAgent:
+              installOperator: false
+          lokiCanary:
+            enabled: false
+        test:
+          enabled: false
         loki:
           commonConfig:
             replication_factor: 1
