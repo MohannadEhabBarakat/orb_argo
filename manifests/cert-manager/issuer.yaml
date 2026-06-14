@@ -92,6 +92,8 @@ spec:
         - name: patcher
           image: alpine/k8s:1.30.0
           securityContext:
+            seccompProfile:
+              type: RuntimeDefault
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             capabilities:

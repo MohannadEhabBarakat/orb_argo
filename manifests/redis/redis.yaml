@@ -18,8 +18,10 @@ spec:
         fsGroup: 999
       containers:
       - name: redis
-        image: redis:8-alpine
+        image: redis:8.8.0-alpine
         securityContext:
+          seccompProfile:
+            type: RuntimeDefault
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           runAsNonRoot: true
