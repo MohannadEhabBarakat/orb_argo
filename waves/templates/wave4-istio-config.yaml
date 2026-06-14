@@ -9,6 +9,12 @@ metadata:
   - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
+  ignoreDifferences:
+  - group: cert-manager.io
+    kind: Certificate
+    jsonPointers:
+    - /spec/duration
+    - /spec/renewBefore
   source:
     repoURL: {{ .Values.repoURL }}
     path: manifests/istio

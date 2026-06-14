@@ -6,8 +6,8 @@ echo " Automating k3s Installation"
 echo "======================================"
 
 echo "Installing k3s..."
-# Installs k3s without GPUs since this machine has no GPUs
-curl -sfL https://get.k3s.io | sh -
+# Installs k3s without GPUs since this machine has no GPUs and disables built-in Traefik
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable traefik" sh -
 
 echo "Configuring kubectl for the current user..."
 mkdir -p ~/.kube

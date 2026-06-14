@@ -62,7 +62,11 @@ spec:
         
         postgresql:
           enabled: false
+        postgresql-ha:
+          enabled: false
         redis:
+          enabled: false
+        redis-cluster:
           enabled: false
         
         persistence:
