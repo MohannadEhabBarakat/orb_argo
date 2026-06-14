@@ -13,6 +13,10 @@ spec:
       labels:
         app: minio
     spec:
+      hostAliases:
+      - ip: "10.43.176.208"
+        hostnames:
+        - "auth.localhost"
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
@@ -157,12 +161,10 @@ spec:
         - |
           set -e
           echo "Waiting for MinIO..."
-          until curl -sf http://minio.minio.svc.cluster.local:9000/minio/health/live; do
+          while ! mc alias set myminio http://minio.minio.svc.cluster.local:9000 minioadmin "$MINIO_ROOT_PASSWORD"; do
             sleep 5
           done
-          echo "MinIO is up. Setting alias..."
-          mc alias set myminio http://minio.minio.svc.cluster.local:9000 minioadmin "$MINIO_ROOT_PASSWORD"
-          echo "Creating buckets..."
+          echo "MinIO is up. Creating buckets..."
           mc mb --ignore-existing myminio/chunks
           mc mb --ignore-existing myminio/ruler
           mc mb --ignore-existing myminio/admin
