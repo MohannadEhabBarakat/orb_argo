@@ -23,7 +23,7 @@ data:
         CREATE USER gitea WITH PASSWORD '${POSTGRES_PASSWORD}';
         CREATE DATABASE gitea OWNER gitea;
     EOSQL
-
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
