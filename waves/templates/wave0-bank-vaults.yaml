@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: 'ghcr.io/bank-vaults/helm-charts'
     chart: vault-operator
-    targetRevision: 1.21.0 
+    targetRevision: 1.24.0
     helm:
       values: |
         # Helm values for Bank-Vaults operator if needed

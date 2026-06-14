@@ -48,7 +48,7 @@ metadata:
   namespace: vault-system
 spec:
   size: 1
-  image: hashicorp/vault:1.15.1
+  image: hashicorp/vault:1.16.2
   bankVaultsImage: ghcr.io/bank-vaults/bank-vaults:latest
 
   # Schedule on any node
