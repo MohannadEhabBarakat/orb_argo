@@ -16,6 +16,11 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: vault-system
+  ignoreDifferences:
+  - group: vault.banzaicloud.com
+    kind: Vault
+    jsonPointers:
+    - /spec/externalConfig/startupSecrets
   syncPolicy:
     automated:
       prune: true
