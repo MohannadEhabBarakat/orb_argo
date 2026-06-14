@@ -1,9 +1,10 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: redis
   namespace: database
 spec:
+  serviceName: redis
   replicas: 1
   selector:
     matchLabels:
@@ -20,9 +21,11 @@ spec:
         image: redis:8-alpine
         securityContext:
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: false
+          readOnlyRootFilesystem: true
           runAsNonRoot: true
           runAsUser: 999
+          capabilities:
+            drop: ["ALL"]
         resources:
           requests:
             cpu: 50m
@@ -30,29 +33,27 @@ spec:
           limits:
             cpu: 200m
             memory: 256Mi
-        command: ["redis-server", "--appendonly", "yes"]
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-vault-secrets
+              key: REDIS_PASSWORD
+        command: ["sh", "-c", "redis-server --appendonly yes --requirepass $REDIS_PASSWORD"]
         ports:
         - containerPort: 6379
         volumeMounts:
         - name: redis-data
           mountPath: /data
-      volumes:
-      - name: redis-data
-        persistentVolumeClaim:
-          claimName: redis-pvc
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: redis-pvc
-  namespace: database
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: local-path
-  resources:
-    requests:
-      storage: 2Gi
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: local-path
+      resources:
+        requests:
+          storage: 2Gi
 ---
 apiVersion: v1
 kind: Service

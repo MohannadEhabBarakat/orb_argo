@@ -20,7 +20,7 @@ spec:
           postgresql:
             host: postgres.database.svc.cluster.local
             name: authentik
-            user: postgres
+            user: authentik
             password: ""
           redis:
             host: redis.database.svc.cluster.local

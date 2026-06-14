@@ -24,7 +24,7 @@ spec:
             type: postgres
             host: postgres.database.svc.cluster.local:5432
             name: grafana
-            user: postgres
+            user: grafana
             # Password injected via envValueFrom below
           auth.generic_oauth:
             enabled: true

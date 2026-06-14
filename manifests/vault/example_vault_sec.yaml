@@ -1,0 +1,59 @@
+apiVersion: vault.banzaicloud.com/v1alpha1
+kind: Vault
+metadata:
+  name: vault
+  namespace: vault-system
+spec:
+  externalConfig:
+    # Seed initial secrets into Vault KV v2 (Example)
+    startupSecrets:
+      - type: kv
+        path: secret/data/postgres/config
+        data:
+          data:
+            POSTGRES_PASSWORD: "CHANGE_ME_pg_pass"
+      - type: kv
+        path: secret/data/authentik/config
+        data:
+          data:
+            AUTHENTIK_SECRET_KEY: "CHANGE_ME_ak_secret"
+            AUTHENTIK_POSTGRESQL__PASSWORD: "CHANGE_ME_pg_pass"
+            MINIO_CLIENT_SECRET: "CHANGE_ME_minio_oidc"
+            GRAFANA_CLIENT_SECRET: "CHANGE_ME_grafana_oidc"
+            GITEA_CLIENT_SECRET: "CHANGE_ME_gitea_oidc"
+            OPENFGA_CLIENT_SECRET: "CHANGE_ME_openfga_oidc"
+      - type: kv
+        path: secret/data/minio/config
+        data:
+          data:
+            MINIO_ROOT_USER: "minioadmin"
+            MINIO_ROOT_PASSWORD: "CHANGE_ME_minio_pass"
+            MINIO_CLIENT_SECRET: "CHANGE_ME_minio_oidc"
+      - type: kv
+        path: secret/data/grafana/config
+        data:
+          data:
+            GF_DATABASE_PASSWORD: "CHANGE_ME_pg_pass"
+            GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: "CHANGE_ME_grafana_oidc"
+      - type: kv
+        path: secret/data/gitea/config
+        data:
+          data:
+            GITEA_DATABASE_PASSWD: "CHANGE_ME_pg_pass"
+            GITEA_MINIO_ACCESS_KEY: "minioadmin"
+            GITEA_MINIO_SECRET_KEY: "CHANGE_ME_minio_pass"
+            GITEA_ADMIN_USERNAME: "gitea_admin"
+            GITEA_ADMIN_PASSWORD: "CHANGE_ME_gitea_admin_pass"
+            GITEA_CLIENT_SECRET: "CHANGE_ME_gitea_oidc"
+            username: "gitea_admin"
+            password: "CHANGE_ME_gitea_admin_pass"
+      - type: kv
+        path: secret/data/openfga/config
+        data:
+          data:
+            OPENFGA_DATASTORE_URI: "postgres://openfga:CHANGE_ME_pg_pass@postgres.database.svc.cluster.local:5432/openfga?sslmode=disable"
+      - type: kv
+        path: secret/data/redis/config
+        data:
+          data:
+            REDIS_PASSWORD: "CHANGE_ME_redis_pass"

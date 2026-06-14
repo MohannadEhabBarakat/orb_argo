@@ -25,7 +25,7 @@ spec:
               DB_TYPE: postgres
               HOST: postgres.database.svc.cluster.local:5432
               NAME: gitea
-              USER: postgres
+              USER: gitea
             storage:
               STORAGE_TYPE: minio
               MINIO_ENDPOINT: minio.minio.svc.cluster.local:9000

@@ -58,6 +58,9 @@ rules:
   - apiGroups: ["cert-manager.io"]
     resources: ["clusterissuers"]
     verbs: ["get", "patch"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "create", "patch", "update"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -84,9 +87,18 @@ spec:
   template:
     spec:
       serviceAccountName: vault-issuer-patcher
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
       containers:
         - name: patcher
-          image: alpine/k8s:1.29.2
+          image: alpine/k8s:1.30.0
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
           command:
             - /bin/bash
             - -c
@@ -104,4 +116,6 @@ spec:
               fi
               echo "Patching vault-issuer ClusterIssuer with CA Bundle..."
               kubectl patch clusterissuer vault-issuer --type='json' -p="[{\"op\": \"add\", \"path\": \"/spec/vault/caBundle\", \"value\": \"$CA\"}]"
+              echo "Creating vault-ca ConfigMap for trust-manager..."
+              kubectl create configmap vault-ca --from-literal=ca.crt="$(echo $CA | base64 -d)" -n cert-manager --dry-run=client -o yaml | kubectl apply -f -
       restartPolicy: OnFailure

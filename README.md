@@ -54,8 +54,22 @@ Open `https://localhost:8080` in your browser.
 - **Username:** `admin`
 - **Password:** Run the following command to retrieve your initial admin password:
 
-```bash
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+```
+
+### Vault Startup Secrets
+
+Before applying the App of Apps, you must configure the initial secrets for Vault. We keep these secrets out of version control.
+Copy the example file and fill in your own secure passwords:
+
+```bash
+cp manifests/vault/example_vault_sec.yaml manifests/vault/vault_sec.yaml
+```
+
+Edit `manifests/vault/vault_sec.yaml` to replace all `CHANGE_ME` values with secure passwords. Do not commit this file to Git. Once you have populated it, apply it to the cluster:
+
+```bash
+kubectl apply -f manifests/vault/vault_sec.yaml
 ```
 
 ## Step 2: Apply the App of Apps
