@@ -1,7 +1,4 @@
 #!/bin/bash
-set -ex
-git commit -am "Ignore Vault startupSecrets differences" || true
-git push
 
 ./k3s-uninstall.sh
 ./install-k3.sh
