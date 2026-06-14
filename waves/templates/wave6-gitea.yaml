@@ -39,9 +39,8 @@ spec:
               ACCOUNT_LINKING: auto
         
         # Inject Vault secrets as environment variables
-        # In Gitea Helm chart v10+, env/envFrom must be under deployment:
-        deployment:
-          env:
+        # Inject Vault secrets as environment variables into all containers (including init)
+        extraEnvironmentVariables:
             - name: ENV_TO_INI__DATABASE__PASSWD
               valueFrom:
                 secretKeyRef:
