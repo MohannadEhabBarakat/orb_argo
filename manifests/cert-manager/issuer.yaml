@@ -80,9 +80,6 @@ kind: Job
 metadata:
   name: patch-vault-issuer-ca
   namespace: cert-manager
-  annotations:
-    argocd.argoproj.io/hook: Sync
-    argocd.argoproj.io/hook-delete-policy: HookSucceeded
 spec:
   template:
     spec:
