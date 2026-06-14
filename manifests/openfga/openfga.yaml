@@ -13,9 +13,26 @@ spec:
       labels:
         app: openfga
     spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
       initContainers:
       - name: openfga-migrate
-        image: openfga/openfga:latest
+        image: openfga/openfga:v1.17.1
+        securityContext:
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 250m
+            memory: 256Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
         command: ["/openfga", "migrate"]
         env:
         - name: OPENFGA_DATASTORE_ENGINE
@@ -27,7 +44,13 @@ spec:
               key: OPENFGA_DATASTORE_URI
       containers:
       - name: openfga
-        image: openfga/openfga:latest
+        image: openfga/openfga:v1.17.1
+        securityContext:
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
         command: ["/openfga", "run"]
         env:
         - name: OPENFGA_DATASTORE_ENGINE
@@ -48,6 +71,25 @@ spec:
         - containerPort: 8080
         - containerPort: 8081
         - containerPort: 3000
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: 500m
+            memory: 512Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
 ---
 apiVersion: v1
 kind: Service
