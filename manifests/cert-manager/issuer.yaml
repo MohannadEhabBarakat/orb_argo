@@ -114,6 +114,10 @@ spec:
                 echo "Failed to fetch CA"
                 exit 1
               fi
+              echo "Waiting for vault-issuer ClusterIssuer to exist..."
+              until kubectl get clusterissuer vault-issuer >/dev/null 2>&1; do
+                sleep 2
+              done
               echo "Patching vault-issuer ClusterIssuer with CA Bundle..."
               kubectl patch clusterissuer vault-issuer --type='json' -p="[{\"op\": \"add\", \"path\": \"/spec/vault/caBundle\", \"value\": \"$CA\"}]"
               echo "Creating vault-ca ConfigMap for trust-manager..."
