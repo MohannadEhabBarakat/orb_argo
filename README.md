@@ -85,6 +85,6 @@ We use `*.localhost` for local routing to our services via Istio. You do not nee
 ## Nuke the cluster
 
 ```bash
-/usr/local/bin/k3s-uninstall.sh
+./k3s-uninstall.sh
 ```
 

@@ -103,10 +103,6 @@ spec:
             - |
               set -e
               echo "Waiting for Vault to be ready..."
-              until kubectl get pod -n vault-system vault-0 | grep "1/1" | grep "Running"; do
-                sleep 5
-              done
-              echo "Fetching CA from Vault..."
               # Wait until Vault API responds
               until curl -s http://vault.vault-system.svc.cluster.local:8200/v1/pki/ca/pem > /dev/null; do
                 sleep 5
