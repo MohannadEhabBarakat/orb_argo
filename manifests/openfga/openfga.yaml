@@ -27,6 +27,9 @@ spec:
         securityContext:
           runAsNonRoot: true
           allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          seccompProfile:
+            type: RuntimeDefault
           capabilities:
             drop:
               - ALL
@@ -52,6 +55,9 @@ spec:
         securityContext:
           runAsNonRoot: true
           allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          seccompProfile:
+            type: RuntimeDefault
           capabilities:
             drop:
               - ALL
@@ -70,7 +76,7 @@ spec:
         - name: OPENFGA_AUTHN_METHOD
           value: "oidc"
         - name: OPENFGA_AUTHN_OIDC_ISSUER
-          value: "https://auth.localhost/application/o/openfga/"
+          value: "http://authentik-server.authentik.svc.cluster.local:8000/application/o/openfga/"
         - name: OPENFGA_AUTHN_OIDC_AUDIENCE
           value: "openfga"
         ports:
@@ -100,7 +106,11 @@ spec:
         - name: vault-ca
           mountPath: /etc/ssl/custom-certs
           readOnly: true
+        - name: tmp
+          mountPath: /tmp
       volumes:
+      - name: tmp
+        emptyDir: {}
       - name: vault-ca
         configMap:
           name: vault-ca
