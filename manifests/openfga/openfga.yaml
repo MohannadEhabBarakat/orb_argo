@@ -57,6 +57,8 @@ spec:
               - ALL
         command: ["/openfga", "run"]
         env:
+        - name: SSL_CERT_DIR
+          value: "/etc/ssl/certs:/etc/ssl/custom-certs"
         - name: OPENFGA_DATASTORE_ENGINE
           value: "postgres"
         - name: OPENFGA_DATASTORE_URI
@@ -94,6 +96,14 @@ spec:
           limits:
             cpu: 500m
             memory: 512Mi
+        volumeMounts:
+        - name: vault-ca
+          mountPath: /etc/ssl/custom-certs
+          readOnly: true
+      volumes:
+      - name: vault-ca
+        configMap:
+          name: vault-ca
 ---
 apiVersion: v1
 kind: Service

@@ -39,6 +39,8 @@ spec:
         - secretRef:
             name: minio-vault-secrets
         env:
+        - name: SSL_CERT_DIR
+          value: "/etc/ssl/certs:/etc/ssl/custom-certs"
         # OIDC Configuration for Authentik
         - name: MINIO_IDENTITY_OPENID_CLIENT_ID
           value: "minio"
@@ -88,10 +90,16 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /data
+        - name: vault-ca
+          mountPath: /etc/ssl/custom-certs
+          readOnly: true
       volumes:
       - name: data
         persistentVolumeClaim:
           claimName: minio-pvc
+      - name: vault-ca
+        configMap:
+          name: vault-ca
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
