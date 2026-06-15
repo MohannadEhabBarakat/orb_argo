@@ -25,12 +25,11 @@ spec:
             GITEA_CLIENT_SECRET: "CHANGE_ME_gitea_oidc"
             OPENFGA_CLIENT_SECRET: "CHANGE_ME_openfga_oidc"
       - type: kv
-        path: secret/data/minio/config
+        path: secret/data/seaweedfs/config
         data:
           data:
-            MINIO_ROOT_USER: "minioadmin"
-            MINIO_ROOT_PASSWORD: "CHANGE_ME_minio_pass"
-            MINIO_CLIENT_SECRET: "CHANGE_ME_minio_oidc"
+            SEAWEEDFS_S3_ACCESS_KEY: "seaweedfsadmin"
+            SEAWEEDFS_S3_SECRET_KEY: "CHANGE_ME_seaweedfs_pass"
       - type: kv
         path: secret/data/grafana/config
         data:
@@ -42,8 +41,8 @@ spec:
         data:
           data:
             GITEA_DATABASE_PASSWD: "CHANGE_ME_pg_pass"
-            GITEA_MINIO_ACCESS_KEY: "minioadmin"
-            GITEA_MINIO_SECRET_KEY: "CHANGE_ME_minio_pass"
+            SEAWEEDFS_S3_ACCESS_KEY: "seaweedfsadmin"
+            SEAWEEDFS_S3_SECRET_KEY: "CHANGE_ME_seaweedfs_pass"
             GITEA_ADMIN_USERNAME: "gitea_admin"
             GITEA_ADMIN_PASSWORD: "CHANGE_ME_gitea_admin_pass"
             GITEA_CLIENT_SECRET: "CHANGE_ME_gitea_oidc"
