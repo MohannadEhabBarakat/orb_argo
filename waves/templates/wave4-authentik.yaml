@@ -39,6 +39,26 @@ spec:
                 secretKeyRef:
                   name: authentik-vault-secrets
                   key: AUTHENTIK_POSTGRESQL__PASSWORD
+            - name: GITEA_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-vault-secrets
+                  key: GITEA_CLIENT_SECRET
+            - name: GRAFANA_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-vault-secrets
+                  key: GRAFANA_CLIENT_SECRET
+            - name: MINIO_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-vault-secrets
+                  key: MINIO_CLIENT_SECRET
+            - name: OPENFGA_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-vault-secrets
+                  key: OPENFGA_CLIENT_SECRET
 
         # Disable bundled postgres/redis since we provide our own
         postgresql:
