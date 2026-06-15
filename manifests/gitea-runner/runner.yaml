@@ -16,6 +16,9 @@ rules:
 - apiGroups: [""]
   resources: ["secrets"]
   verbs: ["get", "create", "update", "patch"]
+- apiGroups: [""]
+  resources: ["pods", "pods/exec"]
+  verbs: ["get", "list", "create"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -47,28 +50,23 @@ spec:
       restartPolicy: OnFailure
       containers:
       - name: register
-        image: curlimages/curl:latest
+        image: bitnami/kubectl:latest
         command:
         - /bin/sh
         - -c
         - |
           set -e
           echo "Waiting for Gitea to be ready..."
-          until curl -sf http://gitea-http.gitea.svc.cluster.local:3000/api/v1/version; do
-            echo "Gitea not ready, retrying in 10s..."
-            sleep 10
-          done
+          kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=gitea --timeout=300s || true
           
-          echo "Gitea is ready. Getting admin token..."
-          # Use the admin credentials from Vault to create an API token
-          ADMIN_USER=$(cat /vault-secrets/GITEA_ADMIN_USERNAME 2>/dev/null || echo "gitea_admin")
-          ADMIN_PASS=$(cat /vault-secrets/GITEA_ADMIN_PASSWORD 2>/dev/null || echo "")
-          
-          # Create a runner registration token via the Gitea API
-          TOKEN=$(curl -sf -X POST \
-            -u "${ADMIN_USER}:${ADMIN_PASS}" \
-            "http://gitea-http.gitea.svc.cluster.local:3000/api/v1/user/actions/runners/registration-token" \
-            -H "Content-Type: application/json" | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+          POD_NAME=$(kubectl get pods -n gitea -l app.kubernetes.io/name=gitea -o jsonpath="{.items[0].metadata.name}")
+          if [ -z "$POD_NAME" ]; then
+            echo "Gitea pod not found"
+            exit 1
+          fi
+
+          echo "Gitea is ready. Generating runner token..."
+          TOKEN=$(kubectl exec -n gitea $POD_NAME -c gitea -- gitea actions generate-runner-token)
           
           if [ -z "$TOKEN" ]; then
             echo "Failed to get runner token"
@@ -76,22 +74,6 @@ spec:
           fi
           
           echo "Runner registration token obtained successfully"
-          echo "$TOKEN" > /tmp/runner-token
-        volumeMounts:
-        - name: vault-secrets
-          mountPath: /vault-secrets
-          readOnly: true
-        - name: token-volume
-          mountPath: /tmp
-      - name: create-secret
-        image: bitnami/kubectl:latest
-        command:
-        - /bin/sh
-        - -c
-        - |
-          # Wait for the token file
-          until [ -f /tmp/runner-token ]; do sleep 2; done
-          TOKEN=$(cat /tmp/runner-token)
           
           # Create or update the K8s secret with the runner token
           kubectl create secret generic gitea-runner-token \
@@ -100,16 +82,6 @@ spec:
             --dry-run=client -o yaml | kubectl apply -f -
           
           echo "Runner token secret created successfully"
-        volumeMounts:
-        - name: token-volume
-          mountPath: /tmp
-      volumes:
-      - name: vault-secrets
-        secret:
-          secretName: gitea-vault-secrets
-          optional: true
-      - name: token-volume
-        emptyDir: {}
 ---
 # The actual Gitea act runner deployment
 apiVersion: apps/v1
