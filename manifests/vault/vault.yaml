@@ -72,6 +72,7 @@ spec:
       secretNamespace: vault-system
 
   config:
+    disable_mlock: true
     storage:
       file:
         path: "/vault/file"
