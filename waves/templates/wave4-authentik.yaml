@@ -36,38 +36,39 @@ spec:
           configMaps:
             - authentik-blueprints
 
-        # Top-level env array (NOT global.env)
-        env:
-          - name: AUTHENTIK_SECRET_KEY
-            valueFrom:
-              secretKeyRef:
-                name: authentik-vault-secrets
-                key: AUTHENTIK_SECRET_KEY
-          - name: AUTHENTIK_POSTGRESQL__PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: authentik-vault-secrets
-                key: AUTHENTIK_POSTGRESQL__PASSWORD
-          - name: GITEA_CLIENT_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: authentik-vault-secrets
-                key: GITEA_CLIENT_SECRET
-          - name: GRAFANA_CLIENT_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: authentik-vault-secrets
-                key: GRAFANA_CLIENT_SECRET
-          - name: MINIO_CLIENT_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: authentik-vault-secrets
-                key: MINIO_CLIENT_SECRET
-          - name: OPENFGA_CLIENT_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: authentik-vault-secrets
-                key: OPENFGA_CLIENT_SECRET
+        # Use global.env as required by Authentik chart >= 2024.2.0
+        global:
+          env:
+            - name: AUTHENTIK_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-vault-secrets
+                  key: AUTHENTIK_SECRET_KEY
+            - name: AUTHENTIK_POSTGRESQL__PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-vault-secrets
+                  key: AUTHENTIK_POSTGRESQL__PASSWORD
+            - name: GITEA_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-vault-secrets
+                  key: GITEA_CLIENT_SECRET
+            - name: GRAFANA_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-vault-secrets
+                  key: GRAFANA_CLIENT_SECRET
+            - name: MINIO_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-vault-secrets
+                  key: MINIO_CLIENT_SECRET
+            - name: OPENFGA_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-vault-secrets
+                  key: OPENFGA_CLIENT_SECRET
   destination:
     server: https://kubernetes.default.svc
     namespace: authentik
