@@ -94,30 +94,30 @@ spec:
         port:
           number: 3000
 ---
-# ── MinIO Console ──
+# ── SeaweedFS Console ──
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: minio-console
-  namespace: minio
+  name: seaweedfs-console
+  namespace: seaweedfs
 spec:
   hosts:
-  - "minio.localhost"
+  - "seaweedfs.localhost"
   gateways:
   - istio-ingress/orb-gateway
   http:
   - route:
     - destination:
-        host: minio.minio.svc.cluster.local
+        host: seaweedfs-filer.seaweedfs.svc.cluster.local
         port:
-          number: 9001
+          number: 8888
 ---
-# ── MinIO S3 API ──
+# ── SeaweedFS S3 API ──
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: minio-api
-  namespace: minio
+  name: seaweedfs-s3-api
+  namespace: seaweedfs
 spec:
   hosts:
   - "s3.localhost"
@@ -126,9 +126,9 @@ spec:
   http:
   - route:
     - destination:
-        host: minio.minio.svc.cluster.local
+        host: seaweedfs-s3.seaweedfs.svc.cluster.local
         port:
-          number: 9000
+          number: 8333
 ---
 # ── OpenFGA Playground ──
 apiVersion: networking.istio.io/v1beta1

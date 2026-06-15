@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: minio
+  name: seaweedfs
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "50"
@@ -11,11 +11,11 @@ spec:
   project: default
   source:
     repoURL: {{ .Values.repoURL }}
-    path: manifests/minio
+    path: manifests/seaweedfs
     targetRevision: {{ .Values.targetRevision }}
   destination:
     server: https://kubernetes.default.svc
-    namespace: minio
+    namespace: seaweedfs
   syncPolicy:
     automated:
       prune: true

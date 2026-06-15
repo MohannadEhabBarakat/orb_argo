@@ -1,0 +1,10 @@
+apiVersion: v2
+name: seaweedfs-wrapper
+description: Wrapper chart for SeaweedFS to include setup jobs
+type: application
+version: 1.0.0
+appVersion: 3.63.4
+dependencies:
+  - name: seaweedfs
+    version: 3.63.4
+    repository: https://seaweedfs.github.io/seaweedfs/helm

@@ -1,0 +1,17 @@
+seaweedfs:
+  global:
+    storageClass: local-path
+  master:
+    enabled: true
+    replicas: 1
+  volume:
+    enabled: true
+    replicas: 1
+    dataNode:
+      storageClass: local-path
+      size: 10Gi
+  filer:
+    enabled: true
+    replicas: 1
+    s3:
+      enabled: true

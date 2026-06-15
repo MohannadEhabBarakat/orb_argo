@@ -19,7 +19,7 @@ spec:
         hosts:
         - "grafana.localhost"
         - "gitea.localhost"
-        - "minio.localhost"
+        - "seaweedfs.localhost"
         - "openfga.localhost"
 ---
 # Register Authentik as an ext-authz provider in the mesh config

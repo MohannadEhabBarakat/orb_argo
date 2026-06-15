@@ -142,14 +142,14 @@ spec:
             bound_service_account_namespaces: ["openfga"]
             policies: ["openfga"]
             ttl: 1h
-          - name: minio
-            bound_service_account_names: ["minio", "default"]
-            bound_service_account_namespaces: ["minio"]
-            policies: ["minio"]
+          - name: seaweedfs
+            bound_service_account_names: ["seaweedfs", "default"]
+            bound_service_account_namespaces: ["seaweedfs"]
+            policies: ["seaweedfs"]
             ttl: 1h
           - name: vso
             bound_service_account_names: ["vault-secrets-operator-controller-manager", "default"]
-            bound_service_account_namespaces: ["vault-system", "database", "authentik", "monitoring", "minio", "gitea", "openfga"]
+            bound_service_account_namespaces: ["vault-system", "database", "authentik", "monitoring", "seaweedfs", "gitea", "openfga"]
             policies: ["vso"]
             ttl: 1h
 
@@ -184,7 +184,7 @@ spec:
           path "secret/data/postgres/*" {
             capabilities = ["read"]
           }
-          path "secret/data/minio/*" {
+          path "secret/data/seaweedfs/*" {
             capabilities = ["read"]
           }
       - name: openfga
@@ -195,9 +195,9 @@ spec:
           path "secret/data/postgres/*" {
             capabilities = ["read"]
           }
-      - name: minio
+      - name: seaweedfs
         rules: |
-          path "secret/data/minio/*" {
+          path "secret/data/seaweedfs/*" {
             capabilities = ["read", "list"]
           }
       - name: vso
