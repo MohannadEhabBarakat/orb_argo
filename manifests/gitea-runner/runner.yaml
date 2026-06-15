@@ -134,24 +134,26 @@ spec:
   backoffLimit: 10
   template:
     spec:
+      serviceAccountName: gitea-runner-register
       restartPolicy: OnFailure
       containers:
       - name: setup-oauth
-        image: curlimages/curl:latest
+        image: bitnami/kubectl:latest
         command:
         - /bin/sh
         - -c
         - |
           set -e
           echo "Waiting for Gitea to be ready..."
-          until curl -sf http://gitea-http.gitea.svc.cluster.local:3000/api/v1/version; do
-            echo "Gitea not ready, retrying in 10s..."
-            sleep 10
-          done
+          kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=gitea --timeout=300s || true
           
+          POD_NAME=$(kubectl get pods -n gitea -l app.kubernetes.io/name=gitea -o jsonpath="{.items[0].metadata.name}")
+          if [ -z "$POD_NAME" ]; then
+            echo "Gitea pod not found"
+            exit 1
+          fi
+
           echo "Gitea is ready. Checking for existing Authentik auth source..."
-          ADMIN_USER=$(cat /vault-secrets/username 2>/dev/null || echo "gitea_admin")
-          ADMIN_PASS=$(cat /vault-secrets/password 2>/dev/null || echo "")
           GITEA_CLIENT_SECRET=$(cat /vault-secrets/GITEA_CLIENT_SECRET 2>/dev/null || echo "")
           
           if [ -z "$GITEA_CLIENT_SECRET" ]; then
@@ -159,26 +161,19 @@ spec:
             exit 1
           fi
 
-          EXISTING=$(curl -sf -u "${ADMIN_USER}:${ADMIN_PASS}" "http://gitea-http.gitea.svc.cluster.local:3000/api/v1/admin/auths" || echo "[]")
+          EXISTING=$(kubectl exec -n gitea $POD_NAME -c gitea -- gitea admin auth list)
           if echo "$EXISTING" | grep -q "Authentik"; then
             echo "Authentik OIDC provider already configured."
             exit 0
           fi
 
           echo "Adding Authentik OIDC provider..."
-          curl -sf -X POST \
-            -u "${ADMIN_USER}:${ADMIN_PASS}" \
-            "http://gitea-http.gitea.svc.cluster.local:3000/api/v1/admin/auths" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "active": true,
-              "name": "Authentik",
-              "oauth2_provider": "openidConnect",
-              "oauth2_key": "gitea",
-              "oauth2_secret": "'"$GITEA_CLIENT_SECRET"'",
-              "oauth2_auto_discover_url": "https://auth.localhost/application/o/gitea/.well-known/openid-configuration",
-              "type": 6
-            }'
+          kubectl exec -n gitea $POD_NAME -c gitea -- gitea admin auth add-oauth \
+            --name Authentik \
+            --provider openidConnect \
+            --key gitea \
+            --secret "$GITEA_CLIENT_SECRET" \
+            --auto-discover-url "https://auth.localhost/application/o/gitea/.well-known/openid-configuration"
             
           echo "Authentik OIDC provider successfully added."
         volumeMounts:
