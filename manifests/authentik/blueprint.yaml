@@ -50,8 +50,10 @@ data:
           client_id: minio
           client_secret: !Env MINIO_CLIENT_SECRET
           redirect_uris:
-            - https://minio.localhost/oauth_callback
-            - http://minio.localhost/oauth_callback
+            - url: https://minio.localhost/oauth_callback
+              matching_mode: strict
+            - url: http://minio.localhost/oauth_callback
+              matching_mode: strict
           property_mappings:
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-openid]]
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-email]]
@@ -83,8 +85,10 @@ data:
           client_id: grafana
           client_secret: !Env GRAFANA_CLIENT_SECRET
           redirect_uris:
-            - https://grafana.localhost/login/generic_oauth
-            - http://grafana.localhost/login/generic_oauth
+            - url: https://grafana.localhost/login/generic_oauth
+              matching_mode: strict
+            - url: http://grafana.localhost/login/generic_oauth
+              matching_mode: strict
           property_mappings:
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-openid]]
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-email]]
@@ -115,8 +119,10 @@ data:
           client_id: gitea
           client_secret: !Env GITEA_CLIENT_SECRET
           redirect_uris:
-            - https://gitea.localhost/user/oauth2/authentik/callback
-            - http://gitea.localhost/user/oauth2/authentik/callback
+            - url: https://gitea.localhost/user/oauth2/authentik/callback
+              matching_mode: strict
+            - url: http://gitea.localhost/user/oauth2/authentik/callback
+              matching_mode: strict
           property_mappings:
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-openid]]
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-email]]
@@ -147,8 +153,10 @@ data:
           client_id: openfga
           client_secret: !Env OPENFGA_CLIENT_SECRET
           redirect_uris:
-            - https://openfga.localhost/callback
-            - http://openfga.localhost/callback
+            - url: https://openfga.localhost/callback
+              matching_mode: strict
+            - url: http://openfga.localhost/callback
+              matching_mode: strict
           property_mappings:
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-openid]]
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-email]]
