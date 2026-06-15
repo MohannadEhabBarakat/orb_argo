@@ -54,7 +54,7 @@ spec:
   http:
   - route:
     - destination:
-        host: authentik.authentik.svc.cluster.local
+        host: authentik-server.authentik.svc.cluster.local
         port:
           number: 80
 ---
