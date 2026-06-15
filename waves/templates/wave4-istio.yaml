@@ -46,6 +46,7 @@ spec:
         pilot:
           env:
             ENABLE_CA_SERVER: "false"
+            PILOT_CERT_PROVIDER: "kubernetes"
           # ext-authz provider config for Authentik
         meshConfig:
           extensionProviders:
