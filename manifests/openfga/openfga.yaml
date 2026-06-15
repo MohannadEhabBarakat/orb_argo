@@ -57,8 +57,8 @@ spec:
               - ALL
         command: ["/openfga", "run"]
         env:
-        - name: SSL_CERT_DIR
-          value: "/etc/ssl/certs:/etc/ssl/custom-certs"
+        - name: SSL_CERT_FILE
+          value: "/etc/ssl/custom-certs/root-ca.pem"
         - name: OPENFGA_DATASTORE_ENGINE
           value: "postgres"
         - name: OPENFGA_DATASTORE_URI

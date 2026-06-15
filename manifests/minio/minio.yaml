@@ -39,8 +39,8 @@ spec:
         - secretRef:
             name: minio-vault-secrets
         env:
-        - name: SSL_CERT_DIR
-          value: "/etc/ssl/certs:/etc/ssl/custom-certs"
+        - name: SSL_CERT_FILE
+          value: "/etc/ssl/custom-certs/root-ca.pem"
         # OIDC Configuration for Authentik
         - name: MINIO_IDENTITY_OPENID_CLIENT_ID
           value: "minio"
