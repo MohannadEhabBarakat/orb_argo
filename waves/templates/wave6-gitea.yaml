@@ -40,7 +40,8 @@ spec:
         
         # Inject Vault secrets as environment variables
         # Inject Vault secrets as environment variables into all containers (including init)
-        extraEnvironmentVariables:
+        deployment:
+          env:
             - name: ENV_TO_INI__DATABASE__PASSWD
               valueFrom:
                 secretKeyRef:
