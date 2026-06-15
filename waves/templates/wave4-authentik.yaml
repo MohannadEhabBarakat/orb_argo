@@ -27,6 +27,8 @@ spec:
 
         global:
           env:
+            - name: AUTHENTIK_BLUEPRINTS__DIR
+              value: "/media/blueprints"
             - name: AUTHENTIK_SECRET_KEY
               valueFrom:
                 secretKeyRef:

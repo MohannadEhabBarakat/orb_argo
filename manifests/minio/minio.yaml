@@ -33,7 +33,7 @@ spec:
           mountPath: /data
       containers:
       - name: minio
-        image: minio/minio:RELEASE.2024-06-13T22-53-53Z
+        image: minio/minio:RELEASE.2025-10-15T17-29-55Z
         securityContext:
           runAsNonRoot: true
           allowPrivilegeEscalation: false
@@ -159,7 +159,7 @@ spec:
       restartPolicy: OnFailure
       containers:
       - name: minio-setup
-        image: minio/mc:RELEASE.2024-06-13T22-53-53Z
+        image: minio/mc:RELEASE.2025-08-13T08-35-41Z
         securityContext:
           runAsNonRoot: true
           allowPrivilegeEscalation: false
