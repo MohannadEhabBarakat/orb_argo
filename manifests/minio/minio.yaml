@@ -63,7 +63,7 @@ spec:
         - name: MINIO_IDENTITY_OPENID_CONFIG_URL
           value: "https://auth.localhost/application/o/minio/.well-known/openid-configuration"
         - name: MINIO_IDENTITY_OPENID_SCOPES
-          value: "openid,profile,email"
+          value: "openid,profile,email,minio-policy"
         - name: MINIO_IDENTITY_OPENID_REDIRECT_URI
           value: "https://minio.localhost/oauth_callback"
         # Redis Notification Configuration (Fix #13: all required env vars)
@@ -159,7 +159,7 @@ spec:
       restartPolicy: OnFailure
       containers:
       - name: minio-setup
-        image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+        image: minio/mc:latest
         securityContext:
           runAsNonRoot: true
           allowPrivilegeEscalation: false

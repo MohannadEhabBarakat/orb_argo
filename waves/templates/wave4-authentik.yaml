@@ -25,65 +25,49 @@ spec:
           redis:
             host: redis.database.svc.cluster.local
 
-        global:
-          env:
-            - name: AUTHENTIK_BLUEPRINTS__DIR
-              value: "/media/blueprints"
-            - name: AUTHENTIK_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: authentik-vault-secrets
-                  key: AUTHENTIK_SECRET_KEY
-            - name: AUTHENTIK_POSTGRESQL__PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: authentik-vault-secrets
-                  key: AUTHENTIK_POSTGRESQL__PASSWORD
-            - name: GITEA_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: authentik-vault-secrets
-                  key: GITEA_CLIENT_SECRET
-            - name: GRAFANA_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: authentik-vault-secrets
-                  key: GRAFANA_CLIENT_SECRET
-            - name: MINIO_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: authentik-vault-secrets
-                  key: MINIO_CLIENT_SECRET
-            - name: OPENFGA_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: authentik-vault-secrets
-                  key: OPENFGA_CLIENT_SECRET
-
-        # Disable bundled postgres/redis since we provide our own
+        # Disable bundled subcharts
         postgresql:
           enabled: false
         redis:
           enabled: false
           
-        server:
-          # Mount the blueprint
-          extraVolumes:
-            - name: blueprints
-              configMap:
-                name: authentik-blueprints
-          extraVolumeMounts:
-            - name: blueprints
-              mountPath: /media/blueprints
+        # Native blueprint mounting handles volumes automatically
+        blueprints:
+          configMaps:
+            - authentik-blueprints
 
-        worker:
-          extraVolumes:
-            - name: blueprints
-              configMap:
-                name: authentik-blueprints
-          extraVolumeMounts:
-            - name: blueprints
-              mountPath: /media/blueprints
+        # Top-level env array (NOT global.env)
+        env:
+          - name: AUTHENTIK_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: authentik-vault-secrets
+                key: AUTHENTIK_SECRET_KEY
+          - name: AUTHENTIK_POSTGRESQL__PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: authentik-vault-secrets
+                key: AUTHENTIK_POSTGRESQL__PASSWORD
+          - name: GITEA_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: authentik-vault-secrets
+                key: GITEA_CLIENT_SECRET
+          - name: GRAFANA_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: authentik-vault-secrets
+                key: GRAFANA_CLIENT_SECRET
+          - name: MINIO_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: authentik-vault-secrets
+                key: MINIO_CLIENT_SECRET
+          - name: OPENFGA_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: authentik-vault-secrets
+                key: OPENFGA_CLIENT_SECRET
   destination:
     server: https://kubernetes.default.svc
     namespace: authentik
