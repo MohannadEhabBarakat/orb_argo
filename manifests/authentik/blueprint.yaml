@@ -45,12 +45,13 @@ data:
         id: minio-provider
         attrs:
           authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+          invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
           client_type: confidential
           client_id: minio
           client_secret: !Env MINIO_CLIENT_SECRET
-          redirect_uris: |
-            https://minio.localhost/oauth_callback
-            http://minio.localhost/oauth_callback
+          redirect_uris:
+            - https://minio.localhost/oauth_callback
+            - http://minio.localhost/oauth_callback
           property_mappings:
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-openid]]
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-email]]
@@ -77,12 +78,13 @@ data:
         id: grafana-provider
         attrs:
           authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+          invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
           client_type: confidential
           client_id: grafana
           client_secret: !Env GRAFANA_CLIENT_SECRET
-          redirect_uris: |
-            https://grafana.localhost/login/generic_oauth
-            http://grafana.localhost/login/generic_oauth
+          redirect_uris:
+            - https://grafana.localhost/login/generic_oauth
+            - http://grafana.localhost/login/generic_oauth
           property_mappings:
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-openid]]
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-email]]
@@ -108,12 +110,13 @@ data:
         id: gitea-provider
         attrs:
           authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+          invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
           client_type: confidential
           client_id: gitea
           client_secret: !Env GITEA_CLIENT_SECRET
-          redirect_uris: |
-            https://gitea.localhost/user/oauth2/authentik/callback
-            http://gitea.localhost/user/oauth2/authentik/callback
+          redirect_uris:
+            - https://gitea.localhost/user/oauth2/authentik/callback
+            - http://gitea.localhost/user/oauth2/authentik/callback
           property_mappings:
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-openid]]
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-email]]
@@ -139,12 +142,13 @@ data:
         id: openfga-provider
         attrs:
           authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+          invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
           client_type: confidential
           client_id: openfga
           client_secret: !Env OPENFGA_CLIENT_SECRET
-          redirect_uris: |
-            https://openfga.localhost/callback
-            http://openfga.localhost/callback
+          redirect_uris:
+            - https://openfga.localhost/callback
+            - http://openfga.localhost/callback
           property_mappings:
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-openid]]
             - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-email]]
