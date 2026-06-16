@@ -59,11 +59,6 @@ spec:
                 secretKeyRef:
                   name: authentik-vault-secrets
                   key: GRAFANA_CLIENT_SECRET
-            - name: MINIO_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: authentik-vault-secrets
-                  key: MINIO_CLIENT_SECRET
             - name: OPENFGA_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
