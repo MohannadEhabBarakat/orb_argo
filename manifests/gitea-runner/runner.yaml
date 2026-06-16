@@ -182,7 +182,7 @@ spec:
             --provider openidConnect \
             --key gitea \
             --secret "$GITEA_CLIENT_SECRET" \
-            --auto-discover-url "https://auth.localhost/application/o/gitea/.well-known/openid-configuration"
+            --auto-discover-url "https://auth.static.128.41.98.91.clients.your-server.de/application/o/gitea/.well-known/openid-configuration"
             
           echo "Authentik OIDC provider successfully added."
         volumeMounts:

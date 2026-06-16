@@ -17,10 +17,10 @@ spec:
     - operation:
         # Protect these hosts with Authentik auth
         hosts:
-        - "grafana.localhost"
-        - "gitea.localhost"
-        - "seaweedfs.localhost"
-        - "openfga.localhost"
+        - "grafana.static.128.41.98.91.clients.your-server.de"
+        - "gitea.static.128.41.98.91.clients.your-server.de"
+        - "seaweedfs.static.128.41.98.91.clients.your-server.de"
+        - "openfga.static.128.41.98.91.clients.your-server.de"
 ---
 # Register Authentik as an ext-authz provider in the mesh config
 # Note: This is typically done via meshConfig in istiod Helm values.
