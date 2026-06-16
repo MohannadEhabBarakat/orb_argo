@@ -53,7 +53,7 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 Open `https://localhost:8080` in your browser.
 - **Username:** `admin`
 - **Password:** Run the following command to retrieve your initial admin password:
-
+```bash
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
 ```
 

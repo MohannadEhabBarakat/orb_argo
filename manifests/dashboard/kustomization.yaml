@@ -9,3 +9,7 @@ configMapGenerator:
     namespace: tools
     files:
       - index.html
+  - name: dashboard-conf
+    namespace: tools
+    files:
+      - default.conf
