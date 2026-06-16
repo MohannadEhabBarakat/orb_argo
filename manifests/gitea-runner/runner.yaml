@@ -59,7 +59,7 @@ spec:
       restartPolicy: OnFailure
       containers:
       - name: register
-        image: bitnami/kubectl:1.30.0
+        image: rancher/kubectl:v1.30.2
         command:
         - /bin/sh
         - -c
@@ -147,7 +147,7 @@ spec:
       restartPolicy: OnFailure
       containers:
       - name: setup-oauth
-        image: bitnami/kubectl:1.30.0
+        image: rancher/kubectl:v1.30.2
         command:
         - /bin/sh
         - -c
