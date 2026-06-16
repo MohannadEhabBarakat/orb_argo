@@ -75,8 +75,6 @@ spec:
           value: "http://authentik-server.authentik.svc.cluster.local/application/o/openfga/"
         - name: OPENFGA_AUTHN_OIDC_AUDIENCE
           value: "openfga"
-        - name: OPENFGA_PLAYGROUND_ENABLED
-          value: "true"
         ports:
         - containerPort: 8080
         - containerPort: 8081
