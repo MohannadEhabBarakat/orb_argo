@@ -16,6 +16,20 @@ spec:
       containers:
       - name: proxpi
         image: epicwink/proxpi:1.3.0
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
         ports:
         - containerPort: 5000
         env:
@@ -24,7 +38,11 @@ spec:
         volumeMounts:
         - name: cache-volume
           mountPath: /var/cache/proxpi
+        - name: tmp
+          mountPath: /tmp
       volumes:
+      - name: tmp
+        emptyDir: {}
       - name: cache-volume
         persistentVolumeClaim:
           claimName: proxpi-pvc

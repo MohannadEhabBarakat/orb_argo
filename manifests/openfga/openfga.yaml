@@ -13,10 +13,6 @@ spec:
       labels:
         app: openfga
     spec:
-      hostAliases:
-      - ip: "10.43.176.208"
-        hostnames:
-        - "auth.localhost"
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000

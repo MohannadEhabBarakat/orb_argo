@@ -103,6 +103,8 @@ This root application will automatically sync and deploy the following waves in 
 
 We use `*.localhost` for local routing to our services via Istio. You do not need to modify your host machine's `/etc/hosts` file since `localhost` resolves locally.
 
+You can access the main dashboard at: [http://dashboard.localhost](http://dashboard.localhost)
+
 
 
 ## Nuke the cluster

@@ -59,7 +59,7 @@ spec:
       restartPolicy: OnFailure
       containers:
       - name: register
-        image: bitnami/kubectl:latest
+        image: bitnami/kubectl:1.30.0
         command:
         - /bin/sh
         - -c
@@ -110,7 +110,7 @@ spec:
     spec:
       containers:
       - name: runner
-        image: gitea/act_runner:latest-dind-rootless
+        image: gitea/act_runner:0.2.10-dind-rootless
         env:
         - name: GITEA_INSTANCE_URL
           value: "http://gitea-http.gitea.svc.cluster.local:3000"
@@ -147,7 +147,7 @@ spec:
       restartPolicy: OnFailure
       containers:
       - name: setup-oauth
-        image: bitnami/kubectl:latest
+        image: bitnami/kubectl:1.30.0
         command:
         - /bin/sh
         - -c

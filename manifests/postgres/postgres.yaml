@@ -14,13 +14,13 @@ data:
     set -e
     
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
-        CREATE USER authentik WITH PASSWORD '${POSTGRES_PASSWORD}';
+        CREATE USER authentik WITH PASSWORD '${AUTHENTIK_POSTGRES_PASSWORD}';
         CREATE DATABASE authentik OWNER authentik;
-        CREATE USER grafana WITH PASSWORD '${POSTGRES_PASSWORD}';
+        CREATE USER grafana WITH PASSWORD '${GRAFANA_POSTGRES_PASSWORD}';
         CREATE DATABASE grafana OWNER grafana;
-        CREATE USER openfga WITH PASSWORD '${POSTGRES_PASSWORD}';
+        CREATE USER openfga WITH PASSWORD '${OPENFGA_POSTGRES_PASSWORD}';
         CREATE DATABASE openfga OWNER openfga;
-        CREATE USER gitea WITH PASSWORD '${POSTGRES_PASSWORD}';
+        CREATE USER gitea WITH PASSWORD '${GITEA_POSTGRES_PASSWORD}';
         CREATE DATABASE gitea OWNER gitea;
     EOSQL
 ---
@@ -69,6 +69,26 @@ spec:
             secretKeyRef:
               name: postgres-vault-secrets
               key: POSTGRES_PASSWORD
+        - name: AUTHENTIK_POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-vault-secrets
+              key: AUTHENTIK_POSTGRES_PASSWORD
+        - name: GRAFANA_POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-vault-secrets
+              key: GRAFANA_POSTGRES_PASSWORD
+        - name: GITEA_POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-vault-secrets
+              key: GITEA_POSTGRES_PASSWORD
+        - name: OPENFGA_POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-vault-secrets
+              key: OPENFGA_POSTGRES_PASSWORD
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
