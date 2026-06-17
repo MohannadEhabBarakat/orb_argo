@@ -17,6 +17,7 @@ spec:
       values: |
         grafana:
           enabled: false # We will deploy Grafana separately in Wave 4
+          forceDeployDashboards: true
         prometheus:
           prometheusSpec:
             serviceMonitorSelectorNilUsesHelmValues: false
