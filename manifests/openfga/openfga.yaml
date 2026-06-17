@@ -63,6 +63,10 @@ spec:
           value: "/etc/ssl/custom-certs/root-ca.pem"
         - name: OPENFGA_PLAYGROUND_ENABLED
           value: "true"
+        - name: OPENFGA_PLAYGROUND_PORT
+          value: "3000"
+        - name: OPENFGA_PLAYGROUND_ADDR
+          value: "0.0.0.0:3000"
         - name: OPENFGA_DATASTORE_ENGINE
           value: "postgres"
         - name: OPENFGA_DATASTORE_URI
@@ -70,8 +74,6 @@ spec:
             secretKeyRef:
               name: openfga-vault-secrets
               key: OPENFGA_DATASTORE_URI
-        - name: OPENFGA_PLAYGROUND_ENABLED
-          value: "true"
         ports:
         - containerPort: 8080
         - containerPort: 8081
