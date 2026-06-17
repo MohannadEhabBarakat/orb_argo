@@ -70,6 +70,10 @@ spec:
   gateways:
   - istio-ingress/orb-gateway
   http:
+  - match:
+    - port: 80
+    redirect:
+      scheme: https
   - route:
     - destination:
         host: grafana.monitoring.svc.cluster.local
