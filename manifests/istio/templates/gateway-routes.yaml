@@ -146,7 +146,7 @@ spec:
     - destination:
         host: openfga.openfga.svc.cluster.local
         port:
-          number: 8080
+          number: 3000
 ---
 # ── Proxpi ──
 apiVersion: networking.istio.io/v1beta1
