@@ -52,9 +52,9 @@ spec:
           extensionProviders:
           - name: authentik-ext-authz
             envoyExtAuthzHttp:
-              service: authentik.authentik.svc.cluster.local
+              service: authentik-server.authentik.svc.cluster.local
               port: 80
-              pathPrefix: "/outpost.goauthentik.io/auth/nginx"
+              pathPrefix: "/outpost.goauthentik.io/auth/envoy"
               includeRequestHeadersInCheck:
               - cookie
               - authorization

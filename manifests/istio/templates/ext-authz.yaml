@@ -48,5 +48,5 @@ spec:
             - endpoint:
                 address:
                   socket_address:
-                    address: authentik.authentik.svc.cluster.local
+                    address: authentik-server.authentik.svc.cluster.local
                     port_value: 9443
