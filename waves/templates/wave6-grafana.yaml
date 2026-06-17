@@ -20,6 +20,8 @@ spec:
 
         # Database: Postgres via Vault secrets
         grafana.ini:
+          server:
+            root_url: https://grafana.{{ .Values.baseDomain }}
           database:
             type: postgres
             host: postgres.database.svc.cluster.local:5432
