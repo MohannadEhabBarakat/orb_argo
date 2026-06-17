@@ -61,6 +61,8 @@ spec:
         env:
         - name: SSL_CERT_FILE
           value: "/etc/ssl/custom-certs/root-ca.pem"
+        - name: OPENFGA_PLAYGROUND_ENABLED
+          value: "true"
         - name: OPENFGA_DATASTORE_ENGINE
           value: "postgres"
         - name: OPENFGA_DATASTORE_URI
