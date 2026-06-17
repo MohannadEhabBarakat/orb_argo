@@ -103,9 +103,9 @@ This root application will automatically sync and deploy the following waves in 
 
 We centralize the routing domain for all services in the cluster. You can change this domain by editing `baseDomain` in `waves/values.yaml`.
 
-The default is `static.128.41.98.91.clients.your-server.de`.
+The default is `91.98.41.128.nip.io`.
 
-You can access the main dashboard at: [http://dashboard.static.128.41.98.91.clients.your-server.de](http://dashboard.static.128.41.98.91.clients.your-server.de)
+You can access the main dashboard at: [http://dashboard.91.98.41.128.nip.io](http://dashboard.91.98.41.128.nip.io)
 
 ## Nuke the cluster
 
