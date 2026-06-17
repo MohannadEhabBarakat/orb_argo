@@ -39,6 +39,8 @@ spec:
         # Use global.env as required by Authentik chart >= 2024.2.0
         global:
           env:
+            - name: AUTHENTIK_HOST
+              value: "https://auth.{{ .Values.baseDomain }}"
             - name: AUTHENTIK_SECRET_KEY
               valueFrom:
                 secretKeyRef:
