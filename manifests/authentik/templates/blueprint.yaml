@@ -135,27 +135,5 @@ data:
         attrs:
           protocol_providers:
             - !KeyOf openfga-proxy-provider
-            - !KeyOf seaweedfs-proxy-provider
 
-      # ══════════════════════════════════════
-      # SeaweedFS Proxy Provider + Application
-      # ══════════════════════════════════════
-      - model: authentik_providers_proxy.proxyprovider
-        state: present
-        identifiers:
-          name: seaweedfs-proxy
-        id: seaweedfs-proxy-provider
-        attrs:
-          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
-          invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
-          mode: forward_single
-          external_host: https://seaweedfs.{{ .Values.baseDomain }}
 
-      - model: authentik_core.application
-        state: present
-        identifiers:
-          slug: seaweedfs
-        attrs:
-          name: SeaweedFS
-          provider: !KeyOf seaweedfs-proxy-provider
-          meta_launch_url: https://seaweedfs.{{ .Values.baseDomain }}
