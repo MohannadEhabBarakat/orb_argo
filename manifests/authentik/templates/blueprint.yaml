@@ -95,6 +95,11 @@ data:
       # ══════════════════════════════════════
       # OpenFGA Proxy Provider + Application
       # ══════════════════════════════════════
+      - model: authentik_providers_oauth2.oauth2provider
+        state: absent
+        identifiers:
+          name: openfga-oidc
+
       - model: authentik_providers_proxy.proxyprovider
         state: present
         identifiers:
