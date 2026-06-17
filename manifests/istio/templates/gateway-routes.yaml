@@ -146,16 +146,11 @@ spec:
   gateways:
   - istio-ingress/orb-gateway
   http:
-  - match:
-    - uri:
-        exact: "/"
-    redirect:
-      uri: "/playground"
   - route:
     - destination:
         host: openfga.openfga.svc.cluster.local
         port:
-          number: 3000
+          number: 8080
 ---
 # ── Proxpi ──
 apiVersion: networking.istio.io/v1beta1

@@ -125,13 +125,17 @@
                 <h2>SeaweedFS</h2>
                 <p>Object Storage</p>
             </a>
-            <a data-host="openfga.{{ .Values.baseDomain }}" class="card" target="_blank">
-                <h2>OpenFGA</h2>
-                <p>Authorization</p>
-            </a>
             <a data-host="pypi.{{ .Values.baseDomain }}" class="card" target="_blank">
                 <h2>Proxpi</h2>
                 <p>PyPI Cache</p>
+            </a>
+        </div>
+        
+        <h1 style="margin-top: 4rem;">API Endpoints</h1>
+        <div class="grid">
+            <a data-host="openfga.{{ .Values.baseDomain }}" class="card" target="_blank">
+                <h2>OpenFGA API</h2>
+                <p>Authorization Endpoint</p>
             </a>
             <a data-host="s3.{{ .Values.baseDomain }}" class="card" target="_blank">
                 <h2>S3 API</h2>
