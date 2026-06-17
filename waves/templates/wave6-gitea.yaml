@@ -41,11 +41,34 @@ spec:
               OPENID_CONNECT_SCOPES: "openid profile email"
               ENABLE_AUTO_REGISTRATION: true
               ACCOUNT_LINKING: auto
+
+        initPreScript: |
+          cat /etc/ssl/certs/ca-certificates.crt /custom-ca/root-ca.pem > /tmp/ca-certificates.crt
         
+        extraVolumes:
+          - name: custom-ca
+            configMap:
+              name: vault-ca
+              items:
+                - key: root-ca.pem
+                  path: root-ca.pem
+
+        extraInitVolumeMounts:
+          - name: custom-ca
+            mountPath: /custom-ca
+            readOnly: true
+
+        extraContainerVolumeMounts:
+          - name: custom-ca
+            mountPath: /custom-ca
+            readOnly: true
+
         # Inject Vault secrets as environment variables
         # Inject Vault secrets as environment variables into all containers (including init)
         deployment:
           env:
+            - name: SSL_CERT_FILE
+              value: /tmp/ca-certificates.crt
             - name: GITEA_OAUTH_KEY_0
               value: "gitea"
             - name: GITEA_OAUTH_SECRET_0
