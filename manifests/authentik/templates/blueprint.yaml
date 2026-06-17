@@ -100,40 +100,11 @@ data:
           provider: !KeyOf gitea-provider
           meta_launch_url: https://gitea.{{ .Values.baseDomain }}
 
-      # ══════════════════════════════════════
-      # OpenFGA Proxy Provider + Application
-      # ══════════════════════════════════════
-      - model: authentik_providers_oauth2.oauth2provider
-        state: absent
-        identifiers:
-          name: openfga-oidc
-
-      - model: authentik_providers_proxy.proxyprovider
-        state: present
-        identifiers:
-          name: openfga-proxy
-        id: openfga-proxy-provider
-        attrs:
-          authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
-          invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
-          mode: forward_single
-          external_host: https://openfga.{{ .Values.baseDomain }}
-
-      - model: authentik_core.application
-        state: present
-        identifiers:
-          slug: openfga
-        attrs:
-          name: OpenFGA
-          provider: !KeyOf openfga-proxy-provider
-          meta_launch_url: https://openfga.{{ .Values.baseDomain }}
-
       - model: authentik_outposts.outpost
         state: present
         identifiers:
           name: authentik Embedded Outpost
         attrs:
-          protocol_providers:
-            - !KeyOf openfga-proxy-provider
+          protocol_providers: []
 
 
