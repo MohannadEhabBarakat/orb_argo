@@ -1,0 +1,4 @@
+apiVersion: v2
+name: istio-config
+description: A Helm chart for istio
+version: 0.1.0

@@ -12,6 +12,10 @@ spec:
   source:
     repoURL: {{ .Values.repoURL }}
     path: manifests/dashboard
+    helm:
+      values: |
+        baseDomain: {{ .Values.baseDomain }}
+
     targetRevision: {{ .Values.targetRevision }}
   destination:
     server: https://kubernetes.default.svc

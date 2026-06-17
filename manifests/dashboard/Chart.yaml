@@ -1,0 +1,4 @@
+apiVersion: v2
+name: dashboard-config
+description: A Helm chart for dashboard
+version: 0.1.0

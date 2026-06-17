@@ -21,7 +21,7 @@ spec:
           oauth:
             - name: "authentik"
               provider: "openidConnect"
-              autoDiscoverUrl: "https://auth.static.128.41.98.91.clients.your-server.de/application/o/gitea/.well-known/openid-configuration"
+              autoDiscoverUrl: "https://auth.{{ .Values.baseDomain }}/application/o/gitea/.well-known/openid-configuration"
           config:
             actions:
               ENABLED: true

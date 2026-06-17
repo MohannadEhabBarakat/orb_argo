@@ -10,9 +10,9 @@ spec:
   issuerRef:
     name: vault-issuer
     kind: ClusterIssuer
-  commonName: "*.static.128.41.98.91.clients.your-server.de"
+  commonName: "*.{{ .Values.baseDomain }}"
   dnsNames:
-  - "*.static.128.41.98.91.clients.your-server.de"
+  - "*.{{ .Values.baseDomain }}"
   - "localhost"
 ---
 apiVersion: networking.istio.io/v1beta1
@@ -29,13 +29,13 @@ spec:
       name: http
       protocol: HTTP
     hosts:
-    - "*.static.128.41.98.91.clients.your-server.de"
+    - "*.{{ .Values.baseDomain }}"
   - port:
       number: 443
       name: https
       protocol: HTTPS
     hosts:
-    - "*.static.128.41.98.91.clients.your-server.de"
+    - "*.{{ .Values.baseDomain }}"
     tls:
       mode: SIMPLE
       credentialName: orb-wildcard-tls # Will be populated by Vault PKI
@@ -48,7 +48,7 @@ metadata:
   namespace: authentik
 spec:
   hosts:
-  - "auth.static.128.41.98.91.clients.your-server.de"
+  - "auth.{{ .Values.baseDomain }}"
   gateways:
   - istio-ingress/orb-gateway
   http:
@@ -66,7 +66,7 @@ metadata:
   namespace: monitoring
 spec:
   hosts:
-  - "grafana.static.128.41.98.91.clients.your-server.de"
+  - "grafana.{{ .Values.baseDomain }}"
   gateways:
   - istio-ingress/orb-gateway
   http:
@@ -84,7 +84,7 @@ metadata:
   namespace: gitea
 spec:
   hosts:
-  - "gitea.static.128.41.98.91.clients.your-server.de"
+  - "gitea.{{ .Values.baseDomain }}"
   gateways:
   - istio-ingress/orb-gateway
   http:
@@ -102,7 +102,7 @@ metadata:
   namespace: seaweedfs
 spec:
   hosts:
-  - "seaweedfs.static.128.41.98.91.clients.your-server.de"
+  - "seaweedfs.{{ .Values.baseDomain }}"
   gateways:
   - istio-ingress/orb-gateway
   http:
@@ -120,7 +120,7 @@ metadata:
   namespace: seaweedfs
 spec:
   hosts:
-  - "s3.static.128.41.98.91.clients.your-server.de"
+  - "s3.{{ .Values.baseDomain }}"
   gateways:
   - istio-ingress/orb-gateway
   http:
@@ -138,7 +138,7 @@ metadata:
   namespace: openfga
 spec:
   hosts:
-  - "openfga.static.128.41.98.91.clients.your-server.de"
+  - "openfga.{{ .Values.baseDomain }}"
   gateways:
   - istio-ingress/orb-gateway
   http:
@@ -156,7 +156,7 @@ metadata:
   namespace: tools
 spec:
   hosts:
-  - "pypi.static.128.41.98.91.clients.your-server.de"
+  - "pypi.{{ .Values.baseDomain }}"
   gateways:
   - istio-ingress/orb-gateway
   http:
@@ -174,7 +174,7 @@ metadata:
   namespace: argocd
 spec:
   hosts:
-  - "argocd.static.128.41.98.91.clients.your-server.de"
+  - "argocd.{{ .Values.baseDomain }}"
   gateways:
   - istio-ingress/orb-gateway
   http:

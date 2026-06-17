@@ -1,2 +1,4 @@
 repoURL: "https://github.com/MohannadEhabBarakat/orb_argo.git"
 targetRevision: "HEAD"
+
+baseDomain: static.128.41.98.91.clients.your-server.de

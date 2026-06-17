@@ -78,7 +78,7 @@ metadata:
   namespace: tools
 spec:
   hosts:
-  - "dashboard.static.128.41.98.91.clients.your-server.de"
+  - "dashboard.{{ .Values.baseDomain }}"
   gateways:
   - istio-ingress/orb-gateway
   http:
