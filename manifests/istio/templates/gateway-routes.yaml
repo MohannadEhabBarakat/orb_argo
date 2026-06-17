@@ -190,8 +190,12 @@ spec:
   gateways:
   - istio-ingress/orb-gateway
   http:
+  - match:
+    - port: 80
+    redirect:
+      scheme: https
   - route:
     - destination:
         host: argocd-server.argocd.svc.cluster.local
         port:
-          number: 443
+          number: 80
