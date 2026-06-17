@@ -38,6 +38,10 @@ data:
           client_type: confidential
           client_id: grafana
           client_secret: !Env GRAFANA_CLIENT_SECRET
+          grant_types:
+            - authorization_code
+            - implicit
+            - refresh_token
           redirect_uris:
             - url: https://grafana.{{ .Values.baseDomain }}/login/generic_oauth
               matching_mode: strict
@@ -72,6 +76,10 @@ data:
           client_type: confidential
           client_id: gitea
           client_secret: !Env GITEA_CLIENT_SECRET
+          grant_types:
+            - authorization_code
+            - implicit
+            - refresh_token
           redirect_uris:
             - url: https://gitea.{{ .Values.baseDomain }}/user/oauth2/authentik/callback
               matching_mode: strict
