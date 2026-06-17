@@ -105,7 +105,7 @@ We centralize the routing domain for all services in the cluster. You can change
 
 The default is `91.98.41.128.nip.io`.
 
-You can access the main dashboard at: [http://dashboard.91.98.41.128.nip.io](http://dashboard.91.98.41.128.nip.io)
+You can access the main dashboard at: [https://dashboard.91.98.41.128.nip.io](https://dashboard.91.98.41.128.nip.io)
 
 ## Nuke the cluster
 
