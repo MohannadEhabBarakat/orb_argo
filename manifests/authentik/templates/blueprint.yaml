@@ -120,5 +120,5 @@ data:
         identifiers:
           name: authentik Embedded Outpost
         attrs:
-          providers:
+          protocol_providers:
             - !KeyOf openfga-proxy-provider
