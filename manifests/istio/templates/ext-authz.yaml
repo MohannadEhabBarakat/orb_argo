@@ -16,3 +16,5 @@ spec:
         # Protect OpenFGA playground with Authentik auth
         hosts:
         - "openfga.{{ .Values.baseDomain }}"
+        notPaths:
+        - "/outpost.goauthentik.io/*"
