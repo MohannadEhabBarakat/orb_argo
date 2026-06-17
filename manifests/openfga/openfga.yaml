@@ -58,6 +58,7 @@ spec:
             drop:
               - ALL
         command: ["/openfga", "run"]
+        args: ["--playground-addr", "0.0.0.0:3000"]
         env:
         - name: SSL_CERT_FILE
           value: "/etc/ssl/custom-certs/root-ca.pem"
