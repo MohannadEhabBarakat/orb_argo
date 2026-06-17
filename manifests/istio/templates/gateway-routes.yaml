@@ -146,6 +146,11 @@ spec:
   gateways:
   - istio-ingress/orb-gateway
   http:
+  - match:
+    - uri:
+        exact: "/"
+    redirect:
+      uri: "/playground"
   - route:
     - destination:
         host: openfga.openfga.svc.cluster.local
