@@ -51,19 +51,9 @@ spec:
         meshConfig:
           extensionProviders:
           - name: authentik-ext-authz
-            envoyExtAuthzHttp:
+            envoyExtAuthzGrpc:
               service: authentik-server.authentik.svc.cluster.local
-              port: 80
-              pathPrefix: "/outpost.goauthentik.io/auth/envoy"
-              includeRequestHeadersInCheck:
-              - cookie
-              - authorization
-              headersToUpstreamOnAllow:
-              - set-cookie
-              - x-authentik-*
-              headersToDownstreamOnDeny:
-              - content-type
-              - set-cookie
+              port: 9443
   destination:
     server: https://kubernetes.default.svc
     namespace: istio-system
