@@ -49,11 +49,13 @@ spec:
             PILOT_CERT_PROVIDER: "kubernetes"
           # ext-authz provider config for Authentik
         meshConfig:
-          extensionProviders:
           - name: authentik-ext-authz
-            envoyExtAuthzGrpc:
+            envoyExtAuthzHttp:
               service: authentik-server.authentik.svc.cluster.local
               port: 80
+              includeRequestHeadersInCheck: ["authorization", "cookie"]
+              headersToUpstreamOnAllow: ["authorization"]
+              headersToDownstreamOnDeny: ["content-type", "set-cookie"]
   destination:
     server: https://kubernetes.default.svc
     namespace: istio-system
