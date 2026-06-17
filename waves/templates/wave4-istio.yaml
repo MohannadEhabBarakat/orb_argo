@@ -53,7 +53,7 @@ spec:
           - name: authentik-ext-authz
             envoyExtAuthzGrpc:
               service: authentik-server.authentik.svc.cluster.local
-              port: 9443
+              port: 80
   destination:
     server: https://kubernetes.default.svc
     namespace: istio-system
