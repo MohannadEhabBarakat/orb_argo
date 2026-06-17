@@ -35,8 +35,10 @@ spec:
               MINIO_ENDPOINT: seaweedfs-s3.seaweedfs.svc.cluster.local:8333
               MINIO_BUCKET: gitea
               MINIO_USE_SSL: false
+            server:
+              ROOT_URL: "https://gitea.{{ .Values.baseDomain }}/"
             openid:
-              ENABLE_OPENID_SIGNIN: true
+              ENABLE_OPENID_SIGNIN: false
             oauth2_client:
               OPENID_CONNECT_SCOPES: "openid profile email"
               ENABLE_AUTO_REGISTRATION: true
@@ -46,6 +48,7 @@ spec:
               ALLOW_ONLY_EXTERNAL_REGISTRATION: true
               ENABLE_BASIC_AUTHENTICATION: false
               ENABLE_PASSWORD_SIGNIN_FORM: false
+              ENABLE_PASSKEY_AUTHENTICATION: false
 
         initPreScript: |
           cat /etc/ssl/certs/ca-certificates.crt /custom-ca/root-ca.pem > /tmp/ca-certificates.crt
