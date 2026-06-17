@@ -120,7 +120,7 @@ data:
           provider: !KeyOf openfga-proxy-provider
           meta_launch_url: https://openfga.{{ .Values.baseDomain }}
 
-      - model: authentik_outpost.outpost
+      - model: authentik_outposts.outpost
         state: present
         identifiers:
           name: authentik Embedded Outpost
