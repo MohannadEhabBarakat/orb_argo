@@ -26,6 +26,8 @@ spec:
             name: grafana
             user: grafana
             # Password injected via envValueFrom below
+          auth:
+            disable_login_form: true
           auth.generic_oauth:
             enabled: true
             name: Authentik
