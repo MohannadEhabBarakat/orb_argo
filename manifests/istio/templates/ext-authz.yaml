@@ -1,0 +1,18 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: authentik-ext-authz
+  namespace: istio-ingress
+spec:
+  selector:
+    matchLabels:
+      istio: ingressgateway
+  action: CUSTOM
+  provider:
+    name: "authentik-ext-authz"
+  rules:
+  - to:
+    - operation:
+        # Protect OpenFGA playground with Authentik auth
+        hosts:
+        - "openfga.{{ .Values.baseDomain }}"
