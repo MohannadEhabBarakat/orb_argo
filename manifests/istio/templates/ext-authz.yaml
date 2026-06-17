@@ -13,8 +13,9 @@ spec:
   rules:
   - to:
     - operation:
-        # Protect OpenFGA playground with Authentik auth
+        # Protect OpenFGA and SeaweedFS playground with Authentik auth
         hosts:
         - "openfga.{{ .Values.baseDomain }}"
+        - "seaweedfs.{{ .Values.baseDomain }}"
         notPaths:
         - "/outpost.goauthentik.io/*"

@@ -110,6 +110,14 @@ spec:
   gateways:
   - istio-ingress/orb-gateway
   http:
+  - match:
+    - uri:
+        prefix: /outpost.goauthentik.io/
+    route:
+    - destination:
+        host: authentik-server.authentik.svc.cluster.local
+        port:
+          number: 80
   - route:
     - destination:
         host: seaweedfs-filer.seaweedfs.svc.cluster.local
