@@ -1,0 +1,54 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kiali
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "65"
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://kiali.org/helm-charts'
+    chart: kiali-server
+    targetRevision: 1.89.0
+    helm:
+      values: |
+        auth:
+          strategy: openid
+          openid:
+            client_id: "kiali"
+            issuer_uri: "https://auth.{{ .Values.baseDomain }}/application/o/kiali/"
+            disable_rbac: true
+            scopes: ["openid", "profile", "email"]
+            authentication_timeout: 300
+            
+        deployment:
+          custom_secrets:
+            - name: kiali-vault-secrets
+              mount_path: /kiali-secrets
+          override_env:
+            - name: KIALI_AUTH_OPENID_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: kiali-vault-secrets
+                  key: OIDC_CLIENT_SECRET
+        
+        external_services:
+          prometheus:
+            url: "http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090"
+          grafana:
+            url: "https://grafana.{{ .Values.baseDomain }}"
+            in_cluster_url: "http://grafana.monitoring.svc.cluster.local:80"
+          istio:
+            root_namespace: "istio-system"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: istio-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true

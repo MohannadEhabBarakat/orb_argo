@@ -203,3 +203,25 @@ spec:
     tls:
       mode: SIMPLE
       insecureSkipVerify: true
+---
+# ── Kiali ──
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: kiali
+  namespace: istio-system
+spec:
+  hosts:
+  - "kiali.{{ .Values.baseDomain }}"
+  gateways:
+  - istio-ingress/orb-gateway
+  http:
+  - match:
+    - port: 80
+    redirect:
+      scheme: https
+  - route:
+    - destination:
+        host: kiali.istio-system.svc.cluster.local
+        port:
+          number: 20001
