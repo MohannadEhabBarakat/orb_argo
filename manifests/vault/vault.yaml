@@ -149,7 +149,7 @@ spec:
             ttl: 1h
           - name: vso
             bound_service_account_names: ["vault-secrets-operator-controller-manager", "default"]
-            bound_service_account_namespaces: ["vault-system", "database", "authentik", "monitoring", "seaweedfs", "gitea", "openfga"]
+            bound_service_account_namespaces: ["vault-system", "database", "authentik", "monitoring", "seaweedfs", "gitea", "openfga", "istio-system"]
             policies: ["vso"]
             ttl: 1h
 
