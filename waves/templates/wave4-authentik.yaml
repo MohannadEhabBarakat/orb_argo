@@ -66,6 +66,11 @@ spec:
                 secretKeyRef:
                   name: authentik-vault-secrets
                   key: OPENFGA_CLIENT_SECRET
+            - name: KIALI_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-vault-secrets
+                  key: KIALI_CLIENT_SECRET
   destination:
     server: https://kubernetes.default.svc
     namespace: authentik
