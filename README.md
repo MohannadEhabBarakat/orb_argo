@@ -99,13 +99,29 @@ This root application will automatically sync and deploy the following waves in 
 - **WAVE 4:** Visualization, Tools & Code (Grafana, Loki, DCGM, Proxpi, Gitea)
 - **WAVE 5:** Dashboard
 
-## Domain Configuration
+## Domain and Let's Encrypt TLS Configuration
 
 We centralize the routing domain for all services in the cluster. You can change this domain by editing `baseDomain` in `waves/values.yaml`.
 
-The default is `91.98.41.128.nip.io`.
+The default is `the-curious-kid.tech`.
 
-You can access the main dashboard at: [https://dashboard.91.98.41.128.nip.io](https://dashboard.91.98.41.128.nip.io)
+### Let's Encrypt Cloudflare DNS-01 Token
+To enable automatic wildcard certificates using Let's Encrypt DNS-01 challenges, we use Cloudflare. `cert-manager` requires a Cloudflare API token to prove domain ownership.
+
+1. Generate an API Token in Cloudflare using the **Edit zone DNS** template.
+2. Save this token into a file named `cf-token.txt` at the root of this project (this file is ignored by Git).
+   ```bash
+   echo "your_cloudflare_api_token" > cf-token.txt
+   ```
+3. Create the secret in your cluster by running the following command:
+   ```bash
+   kubectl create secret generic cloudflare-api-token-secret \
+     --from-literal=api-token="$(cat cf-token.txt)" \
+     -n cert-manager \
+     --dry-run=client -o yaml | kubectl apply -f -
+   ```
+
+You can access the main dashboard at: [https://dashboard.the-curious-kid.tech](https://dashboard.the-curious-kid.tech)
 
 ## Nuke the cluster
 
