@@ -62,3 +62,8 @@ spec:
         data:
           data:
             REDIS_PASSWORD: "CHANGE_ME_redis_pass"
+      - type: kv
+        path: secret/data/kiali/config
+        data:
+          data:
+            OIDC_CLIENT_SECRET: "CHANGE_ME_kiali_oidc"
