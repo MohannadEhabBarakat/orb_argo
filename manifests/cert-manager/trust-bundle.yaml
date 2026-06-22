@@ -10,3 +10,21 @@ spec:
   target:
     configMap:
       key: root-ca.pem
+---
+# Kiali expects a ConfigMap named "kiali-cabundle" with key "openid-server-ca.crt"
+# to trust custom CAs for OpenID Connect provider communication.
+apiVersion: trust.cert-manager.io/v1alpha1
+kind: Bundle
+metadata:
+  name: kiali-cabundle
+spec:
+  sources:
+  - configMap:
+      name: vault-ca
+      key: ca.crt
+  target:
+    configMap:
+      key: openid-server-ca.crt
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: istio-system
