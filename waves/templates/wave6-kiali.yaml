@@ -34,7 +34,7 @@ spec:
           custom_secrets:
             - name: kiali-vault-secrets
               mount: /kiali-secrets
-          override_env:
+          custom_envs:
             - name: KIALI_AUTH_OPENID_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
