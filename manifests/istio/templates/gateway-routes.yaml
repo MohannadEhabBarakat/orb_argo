@@ -13,7 +13,7 @@ spec:
   commonName: "*.{{ .Values.baseDomain }}"
   dnsNames:
   - "*.{{ .Values.baseDomain }}"
-  - "localhost"
+
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: Gateway

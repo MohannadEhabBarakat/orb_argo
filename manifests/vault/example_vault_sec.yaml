@@ -28,6 +28,7 @@ spec:
             GRAFANA_CLIENT_SECRET: "CHANGE_ME_grafana_oidc"
             GITEA_CLIENT_SECRET: "CHANGE_ME_gitea_oidc"
             OPENFGA_CLIENT_SECRET: "CHANGE_ME_openfga_oidc"
+            KIALI_CLIENT_SECRET: "CHANGE_ME_kiali_oidc"
       - type: kv
         path: secret/data/seaweedfs/config
         data:
