@@ -119,6 +119,8 @@ data:
             - implicit
             - refresh_token
           redirect_uris:
+            - url: https://kiali.{{ .Values.baseDomain }}/kiali/api/auth/openid_redirect
+              matching_mode: strict
             - url: https://kiali.{{ .Values.baseDomain }}/kiali
               matching_mode: strict
             - url: http://kiali.{{ .Values.baseDomain }}/kiali

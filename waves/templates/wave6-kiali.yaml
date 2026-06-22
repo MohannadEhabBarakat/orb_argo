@@ -23,6 +23,12 @@ spec:
             disable_rbac: true
             scopes: ["openid", "profile", "email"]
             authentication_timeout: 300
+        
+        server:
+          web_fqdn: "kiali.{{ .Values.baseDomain }}"
+          web_port: 443
+          web_schema: "https"
+          web_root: "/kiali"
             
         deployment:
           custom_secrets:
