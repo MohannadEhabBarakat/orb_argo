@@ -27,7 +27,7 @@ spec:
         deployment:
           custom_secrets:
             - name: kiali-vault-secrets
-              mount_path: /kiali-secrets
+              mountPath: /kiali-secrets
           override_env:
             - name: KIALI_AUTH_OPENID_CLIENT_SECRET
               valueFrom:
