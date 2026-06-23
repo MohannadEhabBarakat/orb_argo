@@ -49,6 +49,7 @@ spec:
             PILOT_CERT_PROVIDER: "kubernetes"
           # ext-authz provider config for Authentik
         meshConfig:
+          accessLogFile: /dev/stdout
           extensionProviders:
             - name: authentik-ext-authz
               envoyExtAuthzHttp:
