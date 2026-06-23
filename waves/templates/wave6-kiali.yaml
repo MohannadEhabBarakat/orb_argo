@@ -31,15 +31,7 @@ spec:
           web_root: "/kiali"
             
         deployment:
-          custom_secrets:
-            - name: kiali-vault-secrets
-              mount: /kiali-secrets
-          custom_envs:
-            - name: KIALI_AUTH_OPENID_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: kiali-vault-secrets
-                  key: OIDC_CLIENT_SECRET
+          secret_name: kiali-vault-secrets
         
         external_services:
           prometheus:
