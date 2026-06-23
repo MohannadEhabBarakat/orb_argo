@@ -67,4 +67,4 @@ spec:
         path: secret/data/kiali/config
         data:
           data:
-            OIDC_CLIENT_SECRET: "CHANGE_ME_kiali_oidc"
+            oidc-secret: "CHANGE_ME_kiali_oidc"
