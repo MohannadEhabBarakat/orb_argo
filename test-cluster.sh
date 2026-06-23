@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 ./k3s-uninstall.sh
 ./install-k3.sh
