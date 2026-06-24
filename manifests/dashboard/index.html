@@ -121,9 +121,9 @@
                 <h2>Gitea</h2>
                 <p>Source Control</p>
             </a>
-            <a data-host="seaweedfs.{{ .Values.baseDomain }}" class="card" target="_blank">
+            <a href="http://localhost:8888" class="card" target="_blank">
                 <h2>SeaweedFS</h2>
-                <p>Object Storage</p>
+                <p>Local Filer (localhost:8888)</p>
             </a>
             <a data-host="pypi.{{ .Values.baseDomain }}" class="card" target="_blank">
                 <h2>Proxpi</h2>
@@ -141,10 +141,26 @@
                 <h2>OpenFGA API</h2>
                 <p>Authorization Endpoint</p>
             </a>
-            <a data-host="s3.{{ .Values.baseDomain }}" class="card" target="_blank">
+            <a href="http://localhost:8333" class="card" target="_blank">
                 <h2>S3 API</h2>
-                <p>SeaweedFS S3 Endpoint</p>
+                <p>Local S3 (localhost:8333)</p>
             </a>
+        </div>
+        
+        <h1 style="margin-top: 4rem;">Database Connections</h1>
+        <div class="grid">
+            <div class="card" style="align-items: flex-start; text-align: left; cursor: text;">
+                <h2>PostgreSQL</h2>
+                <p>Port-forward to connect your UI (e.g., pgAdmin, DBeaver):</p>
+                <code style="background: rgba(0,0,0,0.5); padding: 0.5rem; border-radius: 4px; font-size: 0.85rem; width: 100%; box-sizing: border-box; overflow-x: auto; white-space: nowrap; margin-top: 0.5rem; margin-bottom: 0.5rem;">kubectl port-forward svc/postgres -n database 5432:5432</code>
+                <p style="font-size: 0.9rem;"><strong>Host:</strong> localhost | <strong>Port:</strong> 5432<br><em>(Credentials are stored in Vault)</em></p>
+            </div>
+            <div class="card" style="align-items: flex-start; text-align: left; cursor: text;">
+                <h2>Redis</h2>
+                <p>Port-forward to connect your UI (e.g., RedisInsight):</p>
+                <code style="background: rgba(0,0,0,0.5); padding: 0.5rem; border-radius: 4px; font-size: 0.85rem; width: 100%; box-sizing: border-box; overflow-x: auto; white-space: nowrap; margin-top: 0.5rem; margin-bottom: 0.5rem;">kubectl port-forward svc/redis -n database 6379:6379</code>
+                <p style="font-size: 0.9rem;"><strong>Host:</strong> localhost | <strong>Port:</strong> 6379<br><em>(Credentials are stored in Vault)</em></p>
+            </div>
         </div>
     </div>
     <script>

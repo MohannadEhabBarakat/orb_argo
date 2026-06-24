@@ -98,42 +98,6 @@ spec:
         port:
           number: 3000
 ---
-# ── SeaweedFS Console ──
-apiVersion: networking.istio.io/v1beta1
-kind: VirtualService
-metadata:
-  name: seaweedfs-console
-  namespace: seaweedfs
-spec:
-  hosts:
-  - "seaweedfs.{{ .Values.baseDomain }}"
-  gateways:
-  - istio-ingress/orb-gateway
-  http:
-  - route:
-    - destination:
-        host: seaweedfs-filer.seaweedfs.svc.cluster.local
-        port:
-          number: 8888
----
-# ── SeaweedFS S3 API ──
-apiVersion: networking.istio.io/v1beta1
-kind: VirtualService
-metadata:
-  name: seaweedfs-s3-api
-  namespace: seaweedfs
-spec:
-  hosts:
-  - "s3.{{ .Values.baseDomain }}"
-  gateways:
-  - istio-ingress/orb-gateway
-  http:
-  - route:
-    - destination:
-        host: seaweedfs-s3.seaweedfs.svc.cluster.local
-        port:
-          number: 8333
----
 # ── OpenFGA Playground ──
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
